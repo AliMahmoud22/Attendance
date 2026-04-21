@@ -1,0 +1,156 @@
+using Attendance.Data;
+using Attendance.services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Rotativa.AspNetCore;
+using System.Security.Claims;
+using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using Attendance.Middleware;
+
+var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddControllers();
+
+builder.Configuration
+    .SetBasePath(Directory.GetCurrentDirectory())
+    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+    .AddEnvironmentVariables();
+
+builder.Services.AddDbContext<DBContext>(options =>
+{
+    //var connectionString = builder.Configuration.GetConnectionString("LiveConnection");
+    var connectionString = builder.Configuration.GetConnectionString("TestConnection");
+    options.UseSqlServer(connectionString);
+});
+builder.Services.AddMemoryCache();
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowReact",
+        policy =>
+        {
+            policy.WithOrigins("http://localhost:5173")
+                  .AllowAnyHeader()
+                  .AllowAnyMethod();
+        });
+});
+
+//builder.Services.AddAuthentication("MyCookieAuth")
+//    .AddCookie("MyCookieAuth", options =>
+//    {
+//        options.LoginPath = "/account/login";        
+//        options.AccessDeniedPath = "/account/access-denied"; 
+//        options.ExpireTimeSpan = TimeSpan.FromHours(24);
+//        options.SlidingExpiration = true;
+
+//        options.Events.OnRedirectToLogin = ctx =>
+//        {
+//            if (ctx.Request.Path.StartsWithSegments("/api"))
+//            {
+//                ctx.Response.StatusCode = 401;
+//                return Task.CompletedTask;
+//            }
+//            ctx.Response.Redirect(ctx.RedirectUri);
+//            return Task.CompletedTask;
+//        };
+//    });
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+
+}).AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ClockSkew = TimeSpan.Zero,
+
+        ValidIssuer = builder.Configuration["Jwt:Issuer"],
+        ValidAudience = builder.Configuration["Jwt:Audience"],
+
+        IssuerSigningKey = new SymmetricSecurityKey(
+            Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
+    };
+    options.Events = new JwtBearerEvents
+    {
+        OnTokenValidated = async context =>
+        {
+            var dbContext = context.HttpContext.RequestServices.GetRequiredService<DBContext>();
+
+            var userIdClaim = context.Principal?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var stampClaim = context.Principal?.FindFirst("SecurityStamp")?.Value;
+
+            if (userIdClaim == null || stampClaim == null)
+            {
+                context.Fail("Invalid token claims.");
+                return;
+            }
+
+            var user = await dbContext.Users.AsNoTracking()
+            .Select(u => new { u.ID, u.SecurityStamp, u.IsActive })
+            .FirstOrDefaultAsync(u => u.ID == int.Parse(userIdClaim));
+            if (user == null || user.SecurityStamp != stampClaim)
+            {
+                context.Fail("Token has been invalidated.");
+                return;
+            }
+            if (!user.IsActive)
+            {
+                context.Fail("User account is deactivated.");
+                return;
+            }
+        }
+        ,
+        OnAuthenticationFailed = context =>
+        {
+            Console.WriteLine("Authentication failed: " + context.Exception.Message);
+            var logger = context.HttpContext.RequestServices
+            .GetRequiredService<ILogger<Program>>();
+            logger.LogWarning("Authentication failed: {Message}", context.Exception.Message);
+
+            return Task.CompletedTask;
+        }
+        ,
+        OnForbidden = context =>
+        {
+            Console.WriteLine("Authorization failed ");
+            return Task.CompletedTask;
+        },
+
+    };
+});
+builder.Services.AddAuthorizationBuilder()
+    .AddPolicy("RequireUserRole", policy => policy.RequireRole("User", "IT", "Admin", "SuperAdmin"));
+
+builder.Services.AddScoped<IPdfGeneratorService, RotativaPdfGeneratorService>();
+builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+
+var app = builder.Build();
+
+RotativaConfiguration.Setup("wwwroot", "Rotativa");
+
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHsts();
+}
+//app.UseHttpsRedirection();
+app.UseMiddleware<ExceptionMiddleware>();
+app.UseCors("AllowReact");
+app.UseStaticFiles();        
+app.UseRouting();
+app.UseAuthentication();
+app.UseAuthorization();
+app.MapControllers();
+
+app.MapFallbackToFile("react/index.html");
+
+app.Run();
