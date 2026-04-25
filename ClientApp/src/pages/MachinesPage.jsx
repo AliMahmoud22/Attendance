@@ -332,8 +332,6 @@ export default function MachinesPage() {
     loadNextCode();
   };
 
-  const totalMachines = machines.length;
-  const activeMachines = machines.filter(m => m.enabled).length;
 
   return (
     <>
