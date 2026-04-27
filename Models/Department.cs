@@ -9,11 +9,11 @@ namespace Attendance.Models
         // even though in DB allow null !!!
         //[Key]
         [Column("Code")]
-        [StringLength(4, ErrorMessage = "بحد اقصى اربع حروف")]
+        [StringLength(4, ErrorMessage = "الكود بحد اقصى اربع حروف")]
         public string Id { get; set; } = null!;
 
-        [Required(ErrorMessage = "Name is required.")]
-        [StringLength(50, ErrorMessage = "Name must be between 10 and 50 characters.")]
+        [Required(ErrorMessage = "الاسم مطلوب.")]
+        [StringLength(50, ErrorMessage = "اقصى عدد حروف لاسم القسم 50.")]
         public string Name { get; set; } = null!;
 
         public virtual ICollection<Empinfo> Employees { get; set; } = new List<Empinfo>();

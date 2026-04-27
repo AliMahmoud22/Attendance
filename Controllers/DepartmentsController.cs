@@ -135,7 +135,7 @@ namespace Attendance.Controllers
             {
                 query = filterBy switch
                 {
-                    "id" => query.Where(d => d.Code.Contains(search)),
+                    "id" => query.Where(d => d.Id.Contains(search)),
                     "name" => query.Where(d => d.Name.Contains(search)),
                     _ => query
                 };
@@ -146,8 +146,8 @@ namespace Attendance.Controllers
             {
                 "name_desc" => query.OrderByDescending(d => d.Name),
                 "name_asc" => query.OrderBy(d => d.Name),
-                "code_desc" => query.OrderByDescending(d => d.Code),
-                "code_asc" => query.OrderBy(d => d.Code),
+                "code_desc" => query.OrderByDescending(d => d.Id),
+                "code_asc" => query.OrderBy(d => d.Id),
                 _ => query.OrderBy(d => d.Name)
             };
 
@@ -155,7 +155,7 @@ namespace Attendance.Controllers
                 .AsNoTracking()
                 .Select(d => new
                 {
-                    d.Code,
+                    d.Id,
                     d.Name
                 })
                 .ToListAsync();
@@ -169,7 +169,7 @@ namespace Attendance.Controllers
         {
             var dept = await context.Department
                 .AsNoTracking()
-                .FirstOrDefaultAsync(d => d.Code == id);
+                .FirstOrDefaultAsync(d => d.Id == id);
 
             if (dept == null)
                 return NotFound(new { message = "القسم غير موجود ❌" });
@@ -185,13 +185,13 @@ namespace Attendance.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            if (await context.Department.AnyAsync(d => d.Code == department.Code))
+            if (await context.Department.AnyAsync(d => d.Id == department.Id))
                 return BadRequest(new { message = "كود القسم موجود بالفعل ❌" });
 
             context.Department.Add(department);
             await context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetById), new { id = department.Code }, department);
+            return CreatedAtAction(nameof(GetById), new { id = department.Id }, department);
         }
 
         // PUT api/departments/{id}
@@ -202,13 +202,13 @@ namespace Attendance.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var dept = await context.Department.FirstOrDefaultAsync(d => d.Code == id);
+            var dept = await context.Department.FirstOrDefaultAsync(d => d.Id == id);
             if (dept == null)
                 return NotFound(new { message = "القسم غير موجود ❌" });
 
             // 🔒 Check new code uniqueness
             if (id != dto.NewCode &&
-                await context.Department.AnyAsync(d => d.Code == dto.NewCode))
+                await context.Department.AnyAsync(d => d.Id == dto.NewCode))
             {
                 return BadRequest(new { message = "كود القسم الجديد مستخدم بالفعل ❌" });
             }
@@ -235,7 +235,7 @@ namespace Attendance.Controllers
                 // add new
                 var newDept = new Department
                 {
-                    Code = dto.NewCode,
+                    Id = dto.NewCode,
                     Name = dto.Name
                 };
 
@@ -272,19 +272,6 @@ namespace Attendance.Controllers
 
             return Ok(new { message = "تم حذف القسم بنجاح 🗑️" });
         }
-        [HttpGet("next_code")]
-        public async Task<IActionResult> NextDepartmentCode()
-        {
-            var lastCode = await context.Department
-                .OrderByDescending(d => d.Code)
-                .Select(d => d.Code)
-                .FirstOrDefaultAsync();
 
-            if (lastCode == null)
-                return Ok("1");
-
-            var numberPart = int.Parse(lastCode);
-            return Ok($"{(numberPart + 1)}");
-        }
     }
 }

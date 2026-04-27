@@ -35,7 +35,6 @@ namespace Attendance.Data
                 .HasOne(eh => eh.Employee)
                 .WithMany(e => e.EmpHolidays)
                 .HasForeignKey(eh => eh.EmpCode);
-
             //modelBuilder.Entity<Empshift>()
             //    .HasOne(e => e.EmpInfo) // An Empshift is related to one Empinfo (one-to-many relationship)
             //    .WithMany(emp => emp.EmpShifts) // An Empinfo can have many Empshifts
