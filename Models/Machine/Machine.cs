@@ -14,8 +14,8 @@ namespace Attendance.Models.Machine
         [StringLength(20, ErrorMessage = "The Name cannot be longer than 20 characters.")]
 
         public string Name { get; set; } = null!;
-        
-        public int ConnectType { get; set; } 
+
+        public int ConnectType { get; set; } = 1;
 
         [AllowNull]
         [RegularExpression(@"^((25[0-5]|2[0-4][0-9]|1?[0-9]{1,2})\.){3}(25[0-5]|2[0-4][0-9]|1?[0-9]{1,2})$", ErrorMessage = "enter a valid IP")]
@@ -26,5 +26,9 @@ namespace Attendance.Models.Machine
         public int MachineNumber { get; set; }
 
         public bool Enabled { get; set; } = true;
+
+        [Column("sn")]
+        [Required]
+        public string SN { get; set; } = null!;
     }
 }

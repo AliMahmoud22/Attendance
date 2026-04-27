@@ -19,26 +19,17 @@ function useCountUp(target, duration = 800) {
 }
 
 /* ── Stat card ── */
-function StatCard({ label, value, accent, delay = 0 }) {
+function StatCard({ label, value, accent ,lightColor }) {
   const count = useCountUp(value);
+  
   return (
-    <div
-      className="relative overflow-hidden rounded-2xl p-5 border"
-      style={{
-        background: "rgba(15,23,42,0.6)",
-        borderColor: accent + "40",
-        animation: `fadeSlideUp 0.5s ease both`,
-        animationDelay: `${delay}ms`,
-      }}
-    >
-      <div
-        className="absolute inset-0 opacity-10 rounded-2xl"
-        style={{ background: `radial-gradient(circle at 30% 50%, ${accent}, transparent 70%)` }}
-      />
-      <p className="text-xs font-semibold tracking-widest uppercase mb-1" style={{ color: accent }}>
+    <div className={`rounded-2xl p-4 border ${lightColor}  dark:bg-linear-to-r from-white dark:from-gray-800 from-10% ${accent} to-white to-90% dark:to-gray-800  border-gray-200 dark:border-gray-700 shadow-sm`}>
+      <p className="text-xs font-semibold uppercase text-gray-300 ">
         {label}
       </p>
-      <p className="text-4xl font-black text-white">{count}</p>
+      <p className="text-2xl sm:text-3xl font-bold text-gray-300 ">
+        {count}
+      </p>
     </div>
   );
 }
@@ -47,26 +38,16 @@ function StatCard({ label, value, accent, delay = 0 }) {
 function StatusPill({ enabled }) {
   return (
     <span
-      className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold tracking-wide"
-      style={{
-        background: enabled ? "rgba(16,185,129,0.15)" : "rgba(239,68,68,0.15)",
-        color: enabled ? "#10b981" : "#ef4444",
-        border: `1px solid ${enabled ? "#10b98130" : "#ef444430"}`,
-      }}
+      className={`px-4 py-2 rounded-full text-xs font-semibold ${
+        enabled
+          ? "bg-green-200 text-green-700"
+          : "bg-red-200 text-red-600"
+      }`}
     >
-      <span
-        className="w-1.5 h-1.5 rounded-full"
-        style={{
-          background: enabled ? "#10b981" : "#ef4444",
-          boxShadow: `0 0 6px ${enabled ? "#10b981" : "#ef4444"}`,
-          animation: enabled ? "pulse 2s infinite" : "none",
-        }}
-      />
       {enabled ? "Active" : "Disabled"}
     </span>
   );
 }
-
 /* ── Modal ── */
 function Modal({ title, onClose, children }) {
   return (
@@ -110,17 +91,13 @@ function Field({ label, children }) {
   );
 }
 
-const inputCls = `w-full rounded-xl px-4 py-2.5 text-sm text-white outline-none transition`;
-const inputStyle = {
-  background: "#1e293b",
-  border: "1px solid #334155",
-};
-
+const inputCls = `w-full rounded-xl px-4 py-2.5 text-sm bg-[#1e293b] border border-[#334155] border-solid  text-white outline-none transition`;
 /* ── Create Machine Form ── */
 function CreateMachineForm({ nextCode, onSuccess, onClose }) {
-  const [form, setForm] = useState({ name: "", iP: "", machineNumber: nextCode ?? "" });
+  const [form, setForm] = useState({ Name: "", IP: "", MachineNumber:"", SN:"" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState({});
 
   const handleChange = e => setForm(p => ({ ...p, [e.target.name]: e.target.value }));
 
@@ -134,8 +111,17 @@ function CreateMachineForm({ nextCode, onSuccess, onClose }) {
         body: JSON.stringify(form),
       });
       const data = await res.json();
-      if (!res.ok) setError(data.message || "حدث خطأ");
-      else onSuccess(data.message);
+      console.log(data.errors);
+    if (!res.ok) {
+      if (data.errors) {
+        setFieldErrors(data.errors); 
+      } else {
+        setError(data.message || "حدث خطأ");
+      }
+    } else {
+      setFieldErrors({});
+      onSuccess(data.message);
+    }
     } catch { setError("حدث خطأ في الاتصال"); }
     finally { setLoading(false); }
   };
@@ -143,18 +129,25 @@ function CreateMachineForm({ nextCode, onSuccess, onClose }) {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <Field label="Machine Name">
-        <input name="name" value={form.name} onChange={handleChange} required placeholder="e.g. Main Entrance"
-          className={inputCls} style={inputStyle} />
+        <input name="Name" value={form.Name} onChange={handleChange} required placeholder="e.g. Main Entrance"
+          className= {inputCls} />
       </Field>
       <Field label="IP Address">
-        <input name="iP" value={form.iP} onChange={handleChange} required placeholder="192.168.1.x"
-          className={inputCls} style={inputStyle} />
-      </Field>
-      <Field label="Machine Number">
-        <input name="machineNumber" value={form.machineNumber} onChange={handleChange} required
-          className={inputCls} style={inputStyle} />
+
+        <input name="IP" value={form.IP} type="text" pattern="^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$"
+          onChange={handleChange} required placeholder="10.14.14.x"
+          className={inputCls} />
       </Field>
 
+      <Field label="Machine Serial Number">
+        <input name="SN" value={form.SN} onChange={handleChange} required placeholder="xxx123456789"
+          className= {inputCls} />
+      </Field>
+
+      <Field label="Machine Number">
+        <input name="MachineNumber"  onChange={handleChange} required
+          className={inputCls} />
+      </Field>
       {error && (
         <div className="rounded-xl px-4 py-3 text-sm text-red-400" style={{ background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.2)" }}>
           {error}
@@ -163,16 +156,23 @@ function CreateMachineForm({ nextCode, onSuccess, onClose }) {
 
       <div className="flex gap-3 pt-2">
         <button type="submit" disabled={loading}
-          className="flex-1 py-2.5 rounded-xl font-bold text-sm text-white transition disabled:opacity-50"
+          className="flex-1 py-2.5 btin-action rounded-xl font-bold text-sm text-white transition disabled:opacity-50"
           style={{ background: "linear-gradient(135deg,#3b82f6,#6366f1)" }}>
           {loading ? "Creating..." : "Create Machine"}
         </button>
         <button type="button" onClick={onClose}
-          className="flex-1 py-2.5 rounded-xl font-bold text-sm transition"
+          className="flex-1 py-2.5 btn-action rounded-xl font-bold text-sm transition"
           style={{ background: "#1e293b", color: "#94a3b8" }}>
           Cancel
         </button>
       </div>
+      {Object.keys(fieldErrors).length > 0 && (
+        <div className="text-red-400 text-sm">
+          {Object.entries(fieldErrors).map(([key, msgs]) => (
+            <p key={key}>{msgs[0]}</p>
+          ))}
+        </div>
+      )}
     </form>
   );
 }
@@ -180,10 +180,11 @@ function CreateMachineForm({ nextCode, onSuccess, onClose }) {
 /* ── Edit Machine Form ── */
 function EditMachineForm({ machine, onSuccess, onClose }) {
   const [form, setForm] = useState({
-    iD: machine.iD,
-    name: machine.name,
-    iP: machine.iP,
-    machineNumber: machine.machineNumber,
+    ID: machine.id,
+    Name: machine.name,
+    IP: machine.ip,
+    MachineNumber: machine.machineNumber,
+    SN:machine.sn
   });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -195,7 +196,7 @@ function EditMachineForm({ machine, onSuccess, onClose }) {
     setError("");
     setLoading(true);
     try {
-      const res = await apiFetch(`/api/machines/${machine.iD}`, {
+      const res = await apiFetch(`/api/machines/${machine.id}`, {
         method: "PUT",
         body: JSON.stringify(form),
       });
@@ -209,16 +210,20 @@ function EditMachineForm({ machine, onSuccess, onClose }) {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <Field label="Machine Name">
-        <input name="name" value={form.name} onChange={handleChange} required
-          className={inputCls} style={inputStyle} />
+        <input name="Name" value={form.Name} onChange={handleChange} required
+          className={inputCls} />
       </Field>
       <Field label="IP Address">
-        <input name="iP" value={form.iP} onChange={handleChange} required
-          className={inputCls} style={inputStyle} />
+        <input name="IP" value={form.IP} onChange={handleChange} required
+          className={inputCls} />
       </Field>
       <Field label="Machine Number">
-        <input name="machineNumber" value={form.machineNumber} onChange={handleChange} required
-          className={inputCls} style={inputStyle} />
+        <input name="MachineNumber" value={form.MachineNumber} onChange={handleChange} required
+          className={inputCls} />
+      </Field>
+            <Field label="Machine Serial Number">
+        <input name="SN" value={form.SN} onChange={handleChange} required
+          className={inputCls} />
       </Field>
 
       {error && (
@@ -229,12 +234,12 @@ function EditMachineForm({ machine, onSuccess, onClose }) {
 
       <div className="flex gap-3 pt-2">
         <button type="submit" disabled={loading}
-          className="flex-1 py-2.5 rounded-xl font-bold text-sm text-white transition disabled:opacity-50"
+          className="flex-1 py-2.5 btn-action rounded-xl font-bold text-sm text-white transition disabled:opacity-50"
           style={{ background: "linear-gradient(135deg,#10b981,#059669)" }}>
           {loading ? "Saving..." : "Save Changes"}
         </button>
         <button type="button" onClick={onClose}
-          className="flex-1 py-2.5 rounded-xl font-bold text-sm transition"
+          className="flex-1 py-2.5 btn-action rounded-xl font-bold text-sm transition"
           style={{ background: "#1e293b", color: "#94a3b8" }}>
           Cancel
         </button>
@@ -260,9 +265,7 @@ function Toast({ message, type = "success" }) {
   );
 }
 
-/* ══════════════════════════════════════
-   MAIN PAGE
-══════════════════════════════════════ */
+
 export default function MachinesPage() {
   const [machines, setMachines]   = useState([]);
   const [loading, setLoading]     = useState(true);
@@ -273,7 +276,13 @@ export default function MachinesPage() {
   const [nextCode, setNextCode]   = useState(null);
   const [modal, setModal]         = useState(null); // null | "create" | { type:"edit"|"delete", machine }
   const [toast, setToast]         = useState(null); // { message, type }
-
+  const [stats, setStats] = useState({
+    total: 0,
+    active: 0,
+    disabled: 0
+  });
+  const totalMachines = stats.total;
+  const activeMachines = stats.active;
   const showToast = (message, type = "success") => {
     setToast({ message, type });
     setTimeout(() => setToast(null), 3000);
@@ -281,22 +290,29 @@ export default function MachinesPage() {
 
   /* ── Load machines ── */
   const loadMachines = async (p = 1, replace = true) => {
-    setLoading(true);
     try {
+      if (p === 1) setLoading(true);
+
       const params = new URLSearchParams({ page: p });
-      if (search)       params.set("name", search);
+      if (search) params.set("name", search);
       if (statusFilter) params.set("status", statusFilter);
 
-      const res  = await apiFetch(`/api/machines?${params}`);
+      const res = await apiFetch(`/api/machines?${params}`);
       const json = await res.json();
 
       setMachines(prev => replace ? json.data : [...prev, ...json.data]);
+
+      setStats(json.stats); 
+
       setHasMore(json.hasMore);
       setPage(p);
-    } catch { showToast("Failed to load machines", "error"); }
-    finally { setLoading(false); }
-  };
 
+    } catch {
+      showToast("Failed to load machines", "error");
+    } finally {
+      if (p === 1) setLoading(false);
+    }
+  };
   /* ── Load next code ── */
   const loadNextCode = async () => {
     try {
@@ -314,10 +330,10 @@ export default function MachinesPage() {
     loadMachines(1, true);
   };
 
-  /* ── Delete ── */
-  const handleDelete = async (machine) => {
+  /* ── Disable ── */
+  const handleDisable = async (machine) => {
     try {
-      const res  = await apiFetch(`/api/machines/${machine.iD}`, { method: "DELETE" });
+      const res  = await apiFetch(`/api/machines/${machine.id}`, { method: "DELETE" });
       const data = await res.json();
       showToast(data.message);
       setModal(null);
@@ -325,6 +341,18 @@ export default function MachinesPage() {
     } catch { showToast("Failed to delete", "error"); }
   };
 
+  const handleDelete = async (machine) => {
+    try {
+      const res  = await apiFetch(`/api/machines/permanent/${machine.id}`, { method: "DELETE" });
+      const data = await res.json();
+      showToast(data.message);
+      setModal(null);
+      loadMachines(1, true);
+      
+    } catch  {
+      showToast("Failed to delete", "error");
+    }
+  }
   const handleSuccess = (msg) => {
     setModal(null);
     showToast(msg);
@@ -335,21 +363,7 @@ export default function MachinesPage() {
 
   return (
     <>
-      <style>{`
-        @keyframes fadeSlideUp  { from { opacity:0; transform:translateY(16px) } to { opacity:1; transform:translateY(0) } }
-        @keyframes fadeIn       { from { opacity:0 } to { opacity:1 } }
-        @keyframes scaleIn      { from { opacity:0; transform:scale(.93) } to { opacity:1; transform:scale(1) } }
-        @keyframes slideDown    { from { opacity:0; transform:translateX(-50%) translateY(-12px) } to { opacity:1; transform:translateX(-50%) translateY(0) } }
-        @keyframes pulse        { 0%,100%{opacity:1} 50%{opacity:.4} }
-        .machine-row            { animation: fadeSlideUp 0.4s ease both; }
-        .machine-row:hover      { background: rgba(59,130,246,0.06) !important; }
-        .btn-action             { transition: all 0.18s ease; }
-        .btn-action:hover       { transform: translateY(-1px); }
-        .filter-input:focus     { border-color: #3b82f6 !important; }
-      `}</style>
-
-      <div className="min-h-screen p-6" style={{ color: "#e2e8f0" }}>
-
+      <div className="min-h-screen p-4 sm:p-6 bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-100">
         {/* Toast */}
         {toast && <Toast message={toast.message} type={toast.type} />}
 
@@ -364,8 +378,8 @@ export default function MachinesPage() {
             <EditMachineForm machine={modal.machine} onSuccess={handleSuccess} onClose={() => setModal(null)} />
           </Modal>
         )}
-        {modal?.type === "delete" && (
-          <Modal title="Confirm Delete" onClose={() => setModal(null)}>
+        {modal?.type === "disable" && (
+          <Modal title="Confirm Disable" onClose={() => setModal(null)}>
             <div className="text-center">
               <div className="text-5xl mb-4">⚠️</div>
               <p className="text-white font-semibold mb-1">{modal.machine.name}</p>
@@ -374,13 +388,36 @@ export default function MachinesPage() {
               </p>
               <div className="flex gap-3">
                 <button
-                  onClick={() => handleDelete(modal.machine)}
-                  className="flex-1 py-2.5 rounded-xl font-bold text-sm text-white"
+                  onClick={() => handleDisable(modal.machine)}
+                  className="flex-1 py-2.5 btn-action rounded-xl font-bold text-sm text-white"
                   style={{ background: "linear-gradient(135deg,#ef4444,#dc2626)" }}>
                   Yes, Disable
                 </button>
                 <button onClick={() => setModal(null)}
-                  className="flex-1 py-2.5 rounded-xl font-bold text-sm"
+                  className="flex-1 py-2.5 btn-action rounded-xl font-bold text-sm"
+                  style={{ background: "#1e293b", color: "#94a3b8" }}>
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </Modal>
+        )}{modal?.type === "delete" && (
+          <Modal title="Confirm Delete" onClose={() => setModal(null)}>
+            <div className="text-center">
+              <div className="text-5xl mb-4">⚠️</div>
+              <p className="text-white font-semibold mb-1">{modal.machine.name}</p>
+              <p className="text-sm mb-6" style={{ color: "#94a3b8" }}>
+                This machine will be deleted. Are you sure?
+              </p>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => handleDelete(modal.machine)}
+                  className="flex-1 py-2.5 btn-action rounded-xl font-bold text-sm text-white"
+                  style={{ background: "linear-gradient(135deg,#ef4444,#dc2626)" }}>
+                  Yes, Delete
+                </button>
+                <button onClick={() => setModal(null)}
+                  className="flex-1 py-2.5 btn-action rounded-xl font-bold text-sm"
                   style={{ background: "#1e293b", color: "#94a3b8" }}>
                   Cancel
                 </button>
@@ -393,75 +430,76 @@ export default function MachinesPage() {
         <div className="mb-8" style={{ animation: "fadeSlideUp 0.4s ease both" }}>
           <div className="flex items-start justify-between flex-wrap gap-4">
             <div>
-              <p className="text-xs font-bold tracking-widest uppercase mb-1" style={{ color: "#3b82f6" }}>
-                Biometric Devices
-              </p>
-              <h1 className="text-3xl font-black text-white">Machines</h1>
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-white">
+                اجهزة البصمة
+              </h1>            
             </div>
             <button
               onClick={() => setModal("create")}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm text-white transition btn-action"
-              style={{ background: "linear-gradient(135deg,#3b82f6,#6366f1)", boxShadow: "0 4px 20px rgba(99,102,241,0.4)" }}
+              className="flex items-center gap-2 px-4 py-2 rounded-xl btn-action font-semibold text-white bg-[#1C4D8D] hover:bg-[#163d70] transition"
             >
-              <span className="text-lg">+</span> New Machine
+              + اضافة جهاز بصمة
             </button>
           </div>
         </div>
 
         {/* ── Stats ── */}
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
-          <StatCard label="Total"    value={totalMachines}              accent="#3b82f6" delay={0} />
-          <StatCard label="Active"   value={activeMachines}             accent="#10b981" delay={80} />
-          <StatCard label="Disabled" value={totalMachines - activeMachines} accent="#ef4444" delay={160} />
+          <StatCard label="Total"    value={totalMachines}     lightColor={"bg-[#124170]"}         accent="via-[#124170]"  />
+          <StatCard label="Active"   value={activeMachines}    lightColor={"bg-[#016B61]"}         accent="via-[#016B61]"  />
+          <StatCard label="Disabled" value={stats.disabled} lightColor={"bg-red-900"} accent="via-red-900"  />
         </div>
 
         {/* ── Filters ── */}
-        <form onSubmit={handleSearch}
-          className="flex flex-wrap gap-3 mb-6 p-4 rounded-2xl border"
-          style={{ background: "rgba(15,23,42,0.6)", borderColor: "#1e293b", animation: "fadeSlideUp 0.5s ease 0.1s both" }}
-        >
+       <form
+        onSubmit={handleSearch}
+        className="flex flex-col sm:flex-row gap-3 mb-6 p-4 rounded-2xl border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700"
+       >
           <input
             value={search}
             onChange={e => setSearch(e.target.value)}
-            placeholder="Search by name..."
-            className={`filter-input flex-1 min-w-[180px] rounded-xl px-4 py-2.5 text-sm text-white outline-none`}
-            style={{ background: "#1e293b", border: "1px solid #334155" }}
+            placeholder="Search..."
+            className="flex-1 rounded-xl px-4 py-2 filter-input border bg-gray-50 dark:bg-gray-700 border-gray-300 dark:border-gray-600 outline-none"
           />
+
           <select
             value={statusFilter}
             onChange={e => setStatus(e.target.value)}
-            className="rounded-xl px-4 py-2.5 text-sm outline-none"
-            style={{ background: "#1e293b", border: "1px solid #334155", color: statusFilter ? "#e2e8f0" : "#64748b" }}
+            className="rounded-xl px-4 py-2 border bg-gray-50 dark:bg-gray-700 border-gray-300 dark:border-gray-600"
           >
-            <option value="">All Status</option>
+            <option value="">All</option>
             <option value="true">Active</option>
             <option value="false">Disabled</option>
           </select>
-          <button type="submit"
-            className="px-6 py-2.5 rounded-xl font-bold text-sm text-white btn-action"
-            style={{ background: "linear-gradient(135deg,#3b82f6,#6366f1)" }}>
+
+          <button className="px-4 py-2 rounded-xl btn-action bg-[#1C4D8D] text-white hover:bg-[#163d70]">
             Search
           </button>
-          <button type="button"
-            onClick={() => { setSearch(""); setStatus(""); setTimeout(() => loadMachines(1, true), 50); }}
-            className="px-4 py-2.5 rounded-xl font-bold text-sm btn-action"
-            style={{ background: "#1e293b", color: "#94a3b8", border: "1px solid #334155" }}>
+
+          <button
+            type="button"
+            onClick={() => {
+              setSearch("");
+              setStatus("");
+              loadMachines(1, true);
+            }}
+            className="px-4 py-2 rounded-xl btn-action border border-gray-300 dark:border-gray-600"
+          >
             Reset
           </button>
-        </form>
+         </form>
 
         {/* ── Table ── */}
-        <div className="rounded-2xl border overflow-hidden"
-          style={{ background: "rgba(15,23,42,0.6)", borderColor: "#1e293b", animation: "fadeSlideUp 0.5s ease 0.2s both" }}>
 
+        <div className="rounded-2xl border overflow-hidden  bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
           {/* Table header */}
-          <div className="grid grid-cols-12 gap-4 px-6 py-3 text-xs font-bold tracking-widest uppercase"
-            style={{ background: "#0f172a", borderBottom: "1px solid #1e293b", color: "#475569" }}>
-            <span className="col-span-1">#</span>
+          <div className="grid grid-cols-16 gap-2 sm:gap-4 px-4 sm:px-6 py-3 text-xs font-bold uppercase bg-[#0C2B4E] dark:bg-gray-700 text-white text-center dark:text-gray-300">
             <span className="col-span-4">Name</span>
             <span className="col-span-3">IP Address</span>
+            <span className="col-span-3">SN</span>
+            <span className="col-span-1">Machine Number</span>
             <span className="col-span-2">Status</span>
-            <span className="col-span-2 text-center">Actions</span>
+            <span className="col-span-3 text-center">Actions</span>
           </div>
 
           {/* Loading */}
@@ -485,33 +523,27 @@ export default function MachinesPage() {
           {/* Rows */}
           {!loading && machines.map((m, i) => (
             <div
-              key={m.iD}
-              className="machine-row grid grid-cols-12 gap-4 px-6 py-4 items-center"
-              style={{
-                borderBottom: "1px solid #1e293b",
-                animationDelay: `${i * 40}ms`,
-                background: "transparent",
-                transition: "background 0.2s ease",
-              }}
+              key={m.id}
+              className="grid grid-cols-2 sm:grid-cols-16 gap-2 sm:gap-4 px-4 sm:px-6 py-4 border-t text-center bg-[#edeef0b7]  hover:bg-[#0c2b4e4d]  dark:hover:bg-[#696969b7] dark:bg-[#edeef0b7]/10 border-gray-200 dark:border-gray-700"
             >
-              <span className="col-span-1 text-xs font-mono" style={{ color: "#475569" }}>{m.iD}</span>
-              <span className="col-span-4 font-semibold text-white text-sm">{m.name}</span>
-              <span className="col-span-3 font-mono text-xs" style={{ color: "#64748b" }}>{m.iP}</span>
-              <span className="col-span-2"><StatusPill enabled={m.enabled} /></span>
-              <div className="col-span-2 flex justify-center gap-2">
-                <button
-                  onClick={() => setModal({ type: "edit", machine: m })}
-                  className="btn-action px-3 py-1.5 rounded-lg text-xs font-bold"
-                  style={{ background: "rgba(234,179,8,0.15)", color: "#eab308", border: "1px solid rgba(234,179,8,0.25)" }}
-                >
+
+              <span className="sm:col-span-4 font-semibold">{m.name}</span>
+              <span className="sm:col-span-3 text-lg ">{m.ip}</span>
+              <span className="sm:col-span-3 text-lg ">{m.sn}</span>
+              <span className="sm:col-span-1 text-lg ">{m.machineNumber}</span>
+              <span className="sm:col-span-2">
+                <StatusPill enabled={m.enabled} />
+              </span>
+
+              <div className="sm:col-span-3  justify-center flex gap-2">
+                <button onClick={() => setModal({type : "edit",machine: m})} className="px-2 py-1 btn-action text-xs rounded bg-yellow-300 text-yellow-900">
                   Edit
                 </button>
-                <button
-                  onClick={() => setModal({ type: "delete", machine: m })}
-                  className="btn-action px-3 py-1.5 rounded-lg text-xs font-bold"
-                  style={{ background: "rgba(239,68,68,0.15)", color: "#ef4444", border: "1px solid rgba(239,68,68,0.25)" }}
-                >
+                <button onClick={() => setModal({type : "disable",machine: m})} className="px-2 py-1 btn-action text-xs rounded bg-[#393e49] text-red-600">
                   Disable
+                </button>                
+                <button onClick={() => setModal({type : "delete",machine: m})} className="px-2 py-1 btn-action text-xs rounded bg-red-300 text-red-700">
+                  Delete
                 </button>
               </div>
             </div>
@@ -519,11 +551,10 @@ export default function MachinesPage() {
 
           {/* Load more */}
           {hasMore && !loading && (
-            <div className="px-6 py-4 flex justify-center" style={{ borderTop: "1px solid #1e293b" }}>
+            <div className="px-6 py-4 flex justify-center" >
               <button
                 onClick={() => loadMachines(page + 1, false)}
-                className="px-8 py-2.5 rounded-xl font-bold text-sm btn-action"
-                style={{ background: "#1e293b", color: "#94a3b8", border: "1px solid #334155" }}
+                className="px-8 py-2.5 rounded-xl btn-action bg-[#1e293b] dark:bg-[#717283] text-[#ebebeb] border-2 border-solid border-[#334155] font-bold text-sm btn-action"
               >
                 Load More
               </button>
