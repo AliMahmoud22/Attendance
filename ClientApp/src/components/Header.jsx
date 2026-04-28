@@ -118,7 +118,7 @@ export default function Header() {
             ) : (
               <Link
                 to="/account/login"
-                className="px-3 py-2 rounded border border-white bg-white text-green-800 font-bold  hover:bg-white/40 transition"
+                className="px-3 py-1 rounded border border-gray-200 font-bold text-green-900 hover:bg-white/80 bg-white hover:text-gray-400 transition-all"
               >
                 تسجيل دخول
               </Link>
@@ -149,7 +149,7 @@ export default function Header() {
               ) : (
                 <Link
                   to="/account/login"
-                  className="px-3 py-2 rounded border border-white font-bold text-white hover:bg-white/40 transition"
+                  className="px-3 py-1 rounded border border-gray-200 font-bold text-gray-600 hover:bg-white/80 bg-white hover:text-gray-400 transition-all"
                 >
                   تسجيل دخول
                 </Link>

@@ -10,6 +10,7 @@ import ManageUsers from "./pages/ManageUsers";
 import MachinesPage from "./pages/MachinesPage.jsx";
 import DepartmentsPage from "./pages/DepartmentsPage.jsx";
 import ConnectivityPage from "./pages/ConnectivityPage.jsx";
+import CheckInOutsPage from "./pages/CheckInOutsPage.jsx";
 
 /* ── Auth guard ── */
 function PrivateRoute({ children, requiredRole }) {
@@ -91,6 +92,14 @@ export default function App() {
             element={
               <PrivateRoute>
                 <ConnectivityPage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/check-in-outs"
+            element={
+              <PrivateRoute>
+                <CheckInOutsPage />
               </PrivateRoute>
             }
           />

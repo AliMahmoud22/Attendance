@@ -27,6 +27,7 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Oracle.ManagedDataAccess.Core" Version="23.26.200" />
+    <PackageReference Include="QuestPDF" Version="2026.2.4" />
     <PackageReference Include="Rotativa.AspNetCore" Version="1.4.0" />
     <PackageReference Include="WkHtmlToPdf" Version="1.0.2" />
     <PackageReference Include="ZKemkeeper" Version="1.0.2" />

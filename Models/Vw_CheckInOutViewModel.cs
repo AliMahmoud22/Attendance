@@ -4,7 +4,7 @@
     {
 
         public string? EmpName { get; set; }
-        public decimal EmpCode { get; set; }
+        public decimal? EmpCode { get; set; }
         public string? DepartmentID { get; set; }
         public string? DepartmentName { get; set; }
         public DateTime? CheckTime { get; set; }
