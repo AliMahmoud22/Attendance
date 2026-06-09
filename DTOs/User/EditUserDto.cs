@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Attendance.Models
+namespace Attendance.DTOs.User
 {
     public class EditUserDto
     {
@@ -15,6 +15,6 @@ namespace Attendance.Models
         [Required(ErrorMessage = "Role is required")]
         public string Role { get; set; }
         [Required]
-        public bool isActive { get; set; } 
+        public bool Status { get; set; } 
     }
 }

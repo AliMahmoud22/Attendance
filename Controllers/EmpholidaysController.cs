@@ -13,7 +13,7 @@ namespace Attendance.Controllers
     [Authorize(Roles = "IT")]
     public class EmpHolidaysController(
         DBContext context,
-        IPdfGeneratorService pdfService,
+        
         IMemoryCache memoryCache) : ControllerBase
     {
         private const int PageSize = 20;

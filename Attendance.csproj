@@ -6,6 +6,9 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
+
+
+
   <ItemGroup>
     <Content Include="ClientApp\src\assets\1950-hospital-removebg-preview.png">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
@@ -16,6 +19,7 @@
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </Content>
   </ItemGroup>
+
 
   <ItemGroup>
     <PackageReference Include="BCrypt.Net-Next" Version="4.1.0" />

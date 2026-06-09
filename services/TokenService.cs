@@ -19,7 +19,7 @@ namespace Attendance.services
             new Claim(ClaimTypes.NameIdentifier, user.ID.ToString()),
             new Claim(ClaimTypes.Name, user.UserName),
             new Claim(ClaimTypes.Role, user.Role),
-            new Claim("SecurityStamp", user.SecurityStamp  ?? Guid.NewGuid().ToString())
+            new Claim("SecurityStamp", user.SecurityStamp)
         };
 
             var key = new SymmetricSecurityKey(

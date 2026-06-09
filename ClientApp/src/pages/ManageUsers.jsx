@@ -2,8 +2,7 @@
 import { useState, useEffect } from "react";
 import { apiFetch } from "../utils/api";
 
-
-const ROLES = ["User", "Admin", "SuperAdmin", "IT"];
+const ROLES = ["User", "SuperUser", "Admin", "SuperAdmin", "IT"];
 
 /* ── Modal wrapper ── */
 function Modal({ title, onClose, children }) {
@@ -12,7 +11,12 @@ function Modal({ title, onClose, children }) {
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md">
         <div className="flex items-center justify-between p-5 border-b">
           <h3 className="text-lg font-bold text-gray-800">{title}</h3>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-xl">✕</button>
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-gray-600 text-xl"
+          >
+            ✕
+          </button>
         </div>
         <div className="p-5">{children}</div>
       </div>
@@ -22,11 +26,17 @@ function Modal({ title, onClose, children }) {
 
 /* ── Create User Form ── */
 function CreateUserForm({ onSuccess, onClose }) {
-  const [form, setForm] = useState({ userName: "", password: "", confirmPassword: "", role: "" });
+  const [form, setForm] = useState({
+    userName: "",
+    password: "",
+    confirmPassword: "",
+    role: "",
+  });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleChange = e => setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
+  const handleChange = (e) =>
+    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -36,52 +46,101 @@ function CreateUserForm({ onSuccess, onClose }) {
       return;
     }
     setLoading(true);
-      try {
-
+    try {
       const res = await apiFetch("/api/account/users", {
         method: "POST",
         body: JSON.stringify(form),
       });
       const data = await res.json();
-      if (!res.ok) { setError(data.message || "حدث خطأ"); }
-      else { onSuccess(data.message); }
-    } catch { setError("حدث خطأ في الاتصال"); }
-    finally { setLoading(false); }
+      if (!res.ok) {
+        setError(data.message || "حدث خطأ");
+      } else {
+        onSuccess(data.message);
+      }
+    } catch {
+      setError("حدث خطأ في الاتصال");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4" dir="rtl">
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">اسم المستخدم</label>
-        <input name="userName" value={form.userName} onChange={handleChange} required
-          className="w-full border border-gray-300 rounded-xl px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none" />
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          اسم المستخدم
+        </label>
+        <input
+          name="userName"
+          value={form.userName}
+          onChange={handleChange}
+          required
+          className="w-full border border-gray-300 dark:text-black rounded-xl px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
+        />
       </div>
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">كلمة المرور</label>
-        <input name="password" type="password" value={form.password} onChange={handleChange} required
-          className="w-full border border-gray-300 rounded-xl px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none" />
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          كلمة المرور
+        </label>
+        <input
+          name="password"
+          type="password"
+          value={form.password}
+          onChange={handleChange}
+          required
+          className="w-full border border-gray-300 rounded-xl dark:text-black px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
+        />
       </div>
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">تأكيد كلمة المرور</label>
-        <input name="confirmPassword" type="password" value={form.confirmPassword} onChange={handleChange} required
-          className="w-full border border-gray-300 rounded-xl px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none" />
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          تأكيد كلمة المرور
+        </label>
+        <input
+          name="confirmPassword"
+          type="password"
+          value={form.confirmPassword}
+          onChange={handleChange}
+          required
+          className="w-full border border-gray-300 rounded-xl dark:text-black px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
+        />
       </div>
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">الدور</label>
-        <select name="role" value={form.role} onChange={handleChange} required
-          className="w-full border border-gray-300 rounded-xl px-4 py-2 bg-white focus:ring-2 focus:ring-blue-500 outline-none">
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          الدور
+        </label>
+        <select
+          name="role"
+          value={form.role}
+          onChange={handleChange}
+          required
+          className="w-full border border-gray-300 rounded-xl px-4 py-2 bg-white dark:text-black focus:ring-2 focus:ring-blue-500 outline-none"
+        >
           <option value="">اختر الدور</option>
-          {ROLES.map(r => <option key={r} value={r}>{r}</option>)}
+          {ROLES.map((r) => (
+            <option key={r} value={r}>
+              {r}
+            </option>
+          ))}
         </select>
       </div>
-      {error && <div className="p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm text-center">{error}</div>}
+      {error && (
+        <div className="p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm text-center">
+          {error}
+        </div>
+      )}
       <div className="flex gap-3 pt-2">
-        <button type="submit" disabled={loading}
-          className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-xl transition disabled:opacity-60">
+        <button
+          type="submit"
+          disabled={loading}
+          className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-xl transition disabled:opacity-60"
+        >
           {loading ? "جاري الإنشاء..." : "إنشاء المستخدم"}
         </button>
-        <button type="button" onClick={onClose}
-          className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-2.5 rounded-xl transition">
+        <button
+          type="button"
+          onClick={onClose}
+          className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-2.5 rounded-xl transition"
+        >
           إلغاء
         </button>
       </div>
@@ -95,14 +154,18 @@ function EditUserForm({ user, onSuccess, onClose }) {
     userName: user.userName,
     newPassword: "",
     role: user.role,
-    isActive: user.isActive,
+    status: user.status,
   });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     const { name, value, type } = e.target;
-    setForm(prev => ({ ...prev, [name]: type === "select-one" && name === "isActive" ? value === "true" : value }));
+    setForm((prev) => ({
+      ...prev,
+      [name]:
+        type === "select-one" && name === "status" ? value === "true" : value,
+    }));
   };
 
   const handleSubmit = async (e) => {
@@ -115,48 +178,94 @@ function EditUserForm({ user, onSuccess, onClose }) {
         body: JSON.stringify(form),
       });
       const data = await res.json();
-      if (!res.ok) { setError(data.message || "حدث خطأ"); }
-      else { onSuccess(data.message); }
-    } catch { setError("حدث خطأ في الاتصال"); }
-    finally { setLoading(false); }
+      if (!res.ok) {
+        setError(data.message || "حدث خطأ");
+      } else {
+        onSuccess(data.message);
+      }
+    } catch {
+      setError("حدث خطأ في الاتصال");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Username</label>
-        <input name="userName" value={form.userName} onChange={handleChange} required
-          className="w-full border border-gray-300 rounded-xl px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none" />
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Username
+        </label>
+        <input
+          name="userName"
+          value={form.userName}
+          onChange={handleChange}
+          required
+          className="w-full border border-gray-300 rounded-xl px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
+        />
       </div>
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">New Password (optional)</label>
-        <input name="newPassword" type="password" value={form.newPassword} onChange={handleChange}
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          New Password (optional)
+        </label>
+        <input
+          name="newPassword"
+          type="password"
+          value={form.newPassword}
+          onChange={handleChange}
           placeholder="Leave blank to keep current"
-          className="w-full border border-gray-300 rounded-xl px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none" />
+          className="w-full border border-gray-300 rounded-xl px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
+        />
       </div>
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>
-        <select name="role" value={form.role} onChange={handleChange}
-          className="w-full border border-gray-300 rounded-xl px-4 py-2 bg-white focus:ring-2 focus:ring-blue-500 outline-none">
-          {ROLES.map(r => <option key={r} value={r}>{r}</option>)}
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Role
+        </label>
+        <select
+          name="role"
+          value={form.role}
+          onChange={handleChange}
+          className="w-full border border-gray-300 rounded-xl px-4 py-2 bg-white focus:ring-2 focus:ring-blue-500 outline-none"
+        >
+          {ROLES.map((r) => (
+            <option key={r} value={r}>
+              {r}
+            </option>
+          ))}
         </select>
       </div>
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">isActive</label>
-        <select name="isActive" value={String(form.isActive)} onChange={handleChange}
-          className="w-full border border-gray-300 rounded-xl px-4 py-2 bg-white focus:ring-2 focus:ring-blue-500 outline-none">
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Status
+        </label>
+        <select
+          name="status"
+          value={String(form.status)}
+          onChange={handleChange}
+          className="w-full border border-gray-300 rounded-xl px-4 py-2 bg-white focus:ring-2 focus:ring-blue-500 outline-none"
+        >
           <option value="true">Active</option>
           <option value="false">Deactivated</option>
         </select>
       </div>
-      {error && <div className="p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm text-center">{error}</div>}
+      {error && (
+        <div className="p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm text-center">
+          {error}
+        </div>
+      )}
       <div className="flex gap-3 pt-2">
-        <button type="submit" disabled={loading}
-          className="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-2.5 rounded-xl transition disabled:opacity-60">
+        <button
+          type="submit"
+          disabled={loading}
+          className="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-2.5 rounded-xl transition disabled:opacity-60"
+        >
           {loading ? "Saving..." : "Save Changes"}
         </button>
-        <button type="button" onClick={onClose}
-          className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-2.5 rounded-xl transition">
+        <button
+          type="button"
+          onClick={onClose}
+          className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-2.5 rounded-xl transition"
+        >
           Cancel
         </button>
       </div>
@@ -182,20 +291,36 @@ export default function ManageUsers() {
       const res = await apiFetch("/api/account/users");
       const data = await res.json();
       setUsers(data);
-    } catch {}
-    finally { setLoading(false); }
+    } catch {
+    } finally {
+      setLoading(false);
+    }
   };
 
-  useEffect(() => { loadUsers(); }, []);
+  useEffect(() => {
+    loadUsers();
+  }, []);
 
   const handleDelete = async (id) => {
     if (!confirm("Are you sure you want to deactivate this user?")) return;
     try {
-      const res = await apiFetch(`/api/account/users/${id}`, { method: "DELETE" });
+      const res = await apiFetch(`/api/account/users/${id}`, {
+        method: "DELETE",
+      });
       const data = await res.json();
       showToast(data.message);
       loadUsers();
-    } catch { }
+    } catch {}
+  };
+  const handleStatusToggle = async (id) => {
+    try {
+      const res = await apiFetch(`/api/account/users/${id}`, {
+        method: "POST",
+      });
+      const data = await res.json();
+      showToast(data.message);
+      loadUsers();
+    } catch {}
   };
 
   const handleSuccess = (msg) => {
@@ -216,12 +341,19 @@ export default function ManageUsers() {
       {/* Modals */}
       {modal === "create" && (
         <Modal title="إضافة مستخدم جديد" onClose={() => setModal(null)}>
-          <CreateUserForm onSuccess={handleSuccess} onClose={() => setModal(null)} />
+          <CreateUserForm
+            onSuccess={handleSuccess}
+            onClose={() => setModal(null)}
+          />
         </Modal>
       )}
       {modal?.type === "edit" && (
         <Modal title="Edit User" onClose={() => setModal(null)}>
-          <EditUserForm user={modal.user} onSuccess={handleSuccess} onClose={() => setModal(null)} />
+          <EditUserForm
+            user={modal.user}
+            onSuccess={handleSuccess}
+            onClose={() => setModal(null)}
+          />
         </Modal>
       )}
 
@@ -247,25 +379,32 @@ export default function ManageUsers() {
                 <tr>
                   <th className="px-4 py-3 text-left">Username</th>
                   <th className="px-4 py-3 text-left">Role</th>
-                  <th className="px-4 py-3 text-left">isActive</th>
+                  <th className="px-4 py-3 text-left">Status</th>
                   <th className="px-4 py-3 text-left">Last Login</th>
                   <th className="px-4 py-3 text-center">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
-                {users.map(user => (
-                  <tr key={user.id} className="hover:bg-blue-50 transition-colors">
+                {users.map((user) => (
+                  <tr
+                    key={user.id}
+                    className="hover:bg-blue-50 transition-colors"
+                  >
                     <td className="px-4 py-3 font-medium">{user.userName}</td>
                     <td className="px-4 py-3">{user.role}</td>
                     <td className="px-4 py-3">
-                      <span className={`inline-block px-3 py-1 text-xs font-semibold text-white rounded-full shadow-sm ${
-                        user.isActive ? "bg-green-500" : "bg-red-500"
-                      }`}>
-                        {user.isActive ? "Active" : "Deactivated"}
+                      <span
+                        className={`inline-block px-3 py-1 text-xs font-semibold text-white rounded-full shadow-sm ${
+                          user.status ? "bg-green-500" : "bg-red-500"
+                        }`}
+                      >
+                        {user.status ? "Active" : "Deactivated"}
                       </span>
                     </td>
                     <td className="px-4 py-3 text-gray-500 text-xs">
-                      {user.lastLogin ? new Date(user.lastLogin).toLocaleString("ar-EG") : "—"}
+                      {user.lastLogin
+                        ? new Date(user.lastLogin).toLocaleString("ar-EG")
+                        : "—"}
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex justify-center gap-2">
@@ -274,6 +413,16 @@ export default function ManageUsers() {
                           className="bg-yellow-500 hover:bg-yellow-600 text-white text-xs font-semibold px-3 py-1.5 rounded-lg shadow transition"
                         >
                           Edit
+                        </button>
+                        <button
+                          onClick={() => handleStatusToggle(user.id)}
+                          className={`bg-gray-500 hover:bg-gray-600 text-white text-xs font-semibold px-3 py-1.5 rounded-lg shadow transition ${
+                            user.status
+                              ? "bg-gray-500 hover:bg-gray-600"
+                              : "bg-green-500 hover:bg-green-600"
+                          }`}
+                        >
+                          {user.status ? "Deactivate" : "Active"}
                         </button>
                         <button
                           onClick={() => handleDelete(user.id)}

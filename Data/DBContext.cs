@@ -1,5 +1,8 @@
-﻿using Attendance.Models;
+﻿using Attendance.DTOs;
+using Attendance.DTOs.Employee;
+using Attendance.Models;
 using Attendance.Models.Machine;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace Attendance.Data
@@ -12,7 +15,7 @@ namespace Attendance.Data
             modelBuilder.Entity<Empshift>()
                 .HasKey(e => new { e.EmpCode, e.ShiftCode, e.FromDate });
 
-            
+            modelBuilder.Entity<CreateEmployeeSpResult>().HasNoKey();
             modelBuilder.Entity<Vw_CheckInOutViewModel>()
                 .HasNoKey() // since views often don't have a primary key
                 .ToView("vw_CheckInOutViewModel");
@@ -35,48 +38,7 @@ namespace Attendance.Data
                 .HasOne(eh => eh.Employee)
                 .WithMany(e => e.EmpHolidays)
                 .HasForeignKey(eh => eh.EmpCode);
-            //modelBuilder.Entity<Empshift>()
-            //    .HasOne(e => e.EmpInfo) // An Empshift is related to one Empinfo (one-to-many relationship)
-            //    .WithMany(emp => emp.EmpShifts) // An Empinfo can have many Empshifts
-            //    .HasForeignKey(e => e.EmpCode); // EmpCode is the FK in Empshift
-
-            //// ربط CheckInOut بـ USERINFO
-            //modelBuilder.Entity<CheckInOut>()
-            //    .HasOne(c => c.UserInfo)
-            //    .WithMany(u => u.CheckInOuts)
-            //    .HasForeignKey(c => c.USERID)
-            //    .HasPrincipalKey(u => u.USERID);
-            //// ربط USERINFO بـ EMPINFO
-            ///
-            //modelBuilder.Entity<userinfo>()
-            //    .HasOne(u => u.EmpInfo)
-            //    .WithOne(e => e.UserInfo)
-            //    .HasForeignKey<userinfo>(u => u.BADGENUMBER)
-            //    .HasPrincipalKey<Empinfo>(e => e.EmployeeCode);
-
-            //modelBuilder.Entity<CheckInOut>()
-            //    .HasOne(c => c.EmpInfo) // CheckInOut has one EmpInfo
-            //    .WithMany()  // EmpInfo can have many CheckInOut records
-            //    .HasForeignKey(c => c.USERID) // USERID is the FK
-            //    .OnDelete(DeleteBehavior.Cascade); // Optional: set delete behavior (Cascade, SetNull, etc.)
-            // Relationship between Empinfo and CheckInOut
-
-            //modelBuilder.Entity<Empinfo>()
-            //    .HasMany(e => e.CheckInOut)  // Empinfo has many CheckInOut records
-            //    .WithOne(c => c.EmpInfo)  // CheckInOut references Empinfo
-            //    .HasForeignKey(c => c.USERID);  // Foreign key in CheckInOut
-
-            //modelBuilder.Entity<ShiftTime>()
-            //.HasOne(e=>e.ShiftType)
-            //.WithOne(x=>x.Id)
-
-            //modelBuilder.Entity<Empinfo>()
-            //    .HasOne(e => e.Department)
-            //    .WithMany(d => d.Employees)
-            //    .HasForeignKey(e => e.DepartmentId)
-            //    .OnDelete(DeleteBehavior.Restrict); // Optional: set delete behavior (Restrict, Cascade, etc.)
-
-
+            
         }
 
 
@@ -105,7 +67,7 @@ namespace Attendance.Data
         public DbSet<AbsenceViewModel> AbsenceViewModel { get; set; }
         public DbSet<EarlyLeaveSummary> EarlyLeaveSummary { get; set; }
         public DbSet<DelayReportDto> DelayReportViewModel { get; set; }
-
+        public DbSet<CreateEmployeeSpResult> CreateEmployeeSpResult { get; set; } 
 
         }
 

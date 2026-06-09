@@ -122,7 +122,7 @@ namespace Attendance.Controllers
     [ApiController]
     [Route("api/departments")]
     [Authorize]
-    public class DepartmentsController(DBContext context, IPdfGeneratorService pdfService) : ControllerBase
+    public class DepartmentsController(DBContext context) : ControllerBase
     {
         // GET api/departments?search=x&filterBy=name&sortOrder=name_asc
         [HttpGet]

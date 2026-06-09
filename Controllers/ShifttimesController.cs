@@ -11,8 +11,7 @@ namespace Attendance.Controllers
     [Route("api/shift-times")]
     [Authorize(Roles = "IT,SuperAdmin")]
     public class ShiftTimesController(
-        DBContext context,
-        IPdfGeneratorService pdfService) : ControllerBase
+        DBContext context) : ControllerBase
     {
         // GET api/shift-times?searchName=x&sortColumn=ShiftName&sortDirection=asc
         [HttpGet]

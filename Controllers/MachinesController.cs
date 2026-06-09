@@ -1,10 +1,8 @@
 ﻿using Attendance.Models.Machine;
-using Attendance.services;
 using Attendance.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Memory;
 using Attendance.Exceptions;
 
 
@@ -12,11 +10,9 @@ namespace Attendance.Controllers
 {
     [ApiController]
     [Route("api/machines")]
-    [Authorize(Roles = "IT,SuperAdmin")]
+    [Authorize]
     public class MachinesController(
-        DBContext context,
-        IPdfGeneratorService pdfService,
-        IMemoryCache memoryCache) : ControllerBase
+        DBContext context) : ControllerBase
     {
         private const int PageSize = 20;
 
@@ -63,7 +59,7 @@ namespace Attendance.Controllers
                 }
             });
         }
-        
+
         // GET api/machines/{id}
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
@@ -105,11 +101,12 @@ namespace Attendance.Controllers
 
         // POST api/machines
         [HttpPost]
+        [Authorize(Roles = "IT,SuperAdmin,Admin")]
         public async Task<IActionResult> Create([FromBody] Machine machine)
         {
-            if (!ModelState.IsValid) throw new AppException($"{ModelState}",400);
+            if (!ModelState.IsValid) throw new AppException($"{ModelState}", 400);
 
-            machine.ConnectType = 1;            
+            machine.ConnectType = 1;
             context.Add(machine);
             await context.SaveChangesAsync();
             return Ok(new { message = "تم إضافة الجهاز بنجاح ✅", machine });
@@ -117,6 +114,7 @@ namespace Attendance.Controllers
 
         // PUT api/machines/{id}
         [HttpPut("{id}")]
+        [Authorize(Roles = "IT,SuperAdmin,Admin")]
         public async Task<IActionResult> Edit(int id, [FromBody] Machine machine)
         {
             if (id != machine.ID) throw new AppException("ID mismatch", 400);
@@ -138,6 +136,7 @@ namespace Attendance.Controllers
 
         // DELETE api/machines/{id}  — soft delete
         [HttpDelete("{id}")]
+        [Authorize(Roles = "IT,SuperAdmin,Admin")]
         public async Task<IActionResult> Delete(int id)
         {
             var machine = await context.Machines.FindAsync(id);
@@ -151,6 +150,7 @@ namespace Attendance.Controllers
 
         // DELETE api/machines/{id}  — permanent delete
         [HttpDelete("permanent/{id}")]
+        [Authorize(Roles = "IT,SuperAdmin,Admin")]
         public async Task<IActionResult> PermentDelete(int id)
         {
             var machine = await context.Machines.FindAsync(id);

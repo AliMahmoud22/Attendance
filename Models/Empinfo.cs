@@ -23,6 +23,10 @@ namespace Attendance.Models
         
         [Column("IS_work")]
         public bool? IsDeleted { get; set; }
+        public string? birth { get; set; }
+        public bool ? Empfinger { get; set; }
+        public bool ? OverTime { get; set; }
+
         public Department Department { get; set; }
 
         public ICollection<EmpHoliday> EmpHolidays { get; set; } = new List<EmpHoliday>(); // Navigation Property

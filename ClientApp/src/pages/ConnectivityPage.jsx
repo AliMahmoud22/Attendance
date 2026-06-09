@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { apiFetch } from "../utils/api";
-
+import Toast from "../components/ui/Toast";
 /* ── Status Pill (LIVE) ── */
 function StatusPill({ online }) {
   return (
@@ -8,7 +8,7 @@ function StatusPill({ online }) {
       className={`px-4 py-2 rounded-full text-xs font-semibold flex items-center justify-center gap-2 transition-all duration-300 ${
         online
           ? "bg-green-200 text-green-700 shadow-md shadow-green-300/40"
-          : "bg-red-200 text-red-600 shadow-md shadow-red-300/40 animate-pulse"
+          : "bg-red-200 text-red-600 shadow-md shadow-red-500/40 animate-pulse"
       }`}
     >
       {online && (
@@ -30,28 +30,6 @@ function getRelativeTime(date) {
   if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
 
   return `${Math.floor(seconds / 86400)}d ago`;
-}
-
-/* ── Toast ── */
-function Toast({ message, type = "success" }) {
-  const colors = {
-    success: { bg: "rgba(16,185,129,0.4)", text: "#fff" },
-    error: { bg: "rgba(239,68,68,0.4)", text: "#fff" },
-  };
-
-  return (
-    <div
-      className="fixed top-6 left-1/2 -translate-x-1/2 px-6 py-3 rounded-2xl text-sm font-semibold z-50"
-      style={{
-        background: colors[type].bg,
-        color: colors[type].text,
-        backdropFilter: "blur(10px)",
-        animation: "slideDown 0.3s",
-      }}
-    >
-      {message}
-    </div>
-  );
 }
 
 /* ── Main ── */
@@ -78,7 +56,7 @@ export default function ConnectivityPage() {
     document.addEventListener("click", enableSound);
   }, []);
   useEffect(() => {
-    alertSound.current = new Audio("/alert.mp3");
+    alertSound.current = new Audio("/react/alert.mp3");
 
     const unlockAudio = () => {
       alertSound.current

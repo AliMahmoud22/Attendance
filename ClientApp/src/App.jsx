@@ -1,5 +1,4 @@
 import { Routes, Route, Navigate } from "react-router-dom";
-//import { useEffect, useState } from "react";
 import { useAuth } from "./hooks/useAuth.jsx";
 import Header from "./components/Header";
 import LoginPage from "./pages/LoginPage";
@@ -11,6 +10,7 @@ import MachinesPage from "./pages/MachinesPage.jsx";
 import DepartmentsPage from "./pages/DepartmentsPage.jsx";
 import ConnectivityPage from "./pages/ConnectivityPage.jsx";
 import CheckInOutsPage from "./pages/CheckInOutsPage.jsx";
+import EmployeesPage from "./pages/EmployeesPage.jsx";
 
 /* ── Auth guard ── */
 function PrivateRoute({ children, requiredRole }) {
@@ -36,7 +36,7 @@ export default function App() {
       <Header />
       <main
         className="pt-16 
-        min-h-screen 
+        min-h-screen
         bg-gray-100 dark:bg-gray-900 
         text-gray-800 dark:text-gray-100 
         transition-colors duration-300"
@@ -103,6 +103,15 @@ export default function App() {
               </PrivateRoute>
             }
           />
+          <Route
+            path="/employees"
+            element={
+              <PrivateRoute>
+                <EmployeesPage />
+              </PrivateRoute>
+            }
+          />
+
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>

@@ -121,6 +121,15 @@ function CreateMachineForm({ nextCode, onSuccess, onClose }) {
         method: "POST",
         body: JSON.stringify(form),
       });
+
+      if (!res || !res.ok) {
+        if (res && res.status !== 403) {
+          const errorData = await res.json().catch(() => ({}));
+          showToast(errorData.message || "Failed to load employees", "error");
+        }
+        return;
+      }
+
       const data = await res.json();
       if (!res.ok) {
         if (data.errors) {

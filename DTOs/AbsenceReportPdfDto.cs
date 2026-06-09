@@ -1,4 +1,6 @@
-﻿namespace Attendance.Models
+﻿using Attendance.Models;
+
+namespace Attendance.DTOs
 {
     public class AbsenceReportPdfDto
     {

@@ -1,10 +1,8 @@
 ﻿using Attendance.Models;
-using Attendance.services;
 using Attendance.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Memory;
 
 namespace Attendance.Controllers
 {
@@ -12,24 +10,13 @@ namespace Attendance.Controllers
     [Route("api/emp-shifts")]
     [Authorize(Roles = "IT,SuperAdmin")]
     public class EmpshiftsController(
-        DBContext context,
-        IPdfGeneratorService pdfService,
-        IMemoryCache memoryCache) : ControllerBase
+        DBContext context) : ControllerBase
     {
         private const int PageSize = 20;
 
         // GET api/emp-shifts?filterType=single&empCode=1&fromDate=x&toDate=x&departmentId=x&page=1
         [HttpGet]
-        public async Task<IActionResult> GetAll(
-            string? filterType,
-            decimal? empCode,
-            decimal? empCodeFrom,
-            decimal? empCodeTo,
-            DateTime? fromDate,
-            DateTime? toDate,
-            string? departmentId,
-            string? sortColumn,
-            string? sortDirection,
+        public async Task<IActionResult> GetAll(string? filterType, decimal? empCode, decimal? empCodeFrom, decimal? empCodeTo, DateTime? fromDate, DateTime? toDate, string? departmentId, string? sortColumn, string? sortDirection,
             int page = 1)
         {
             var query = context.vw_EmpShiftWithAllowance.AsQueryable();
@@ -80,8 +67,7 @@ namespace Attendance.Controllers
 
             var paged = fullResult.Skip((page - 1) * PageSize).Take(PageSize).ToList();
 
-            var cacheKey = Guid.NewGuid().ToString();
-            memoryCache.Set(cacheKey, fullResult, TimeSpan.FromMinutes(20));
+
 
             var departments = await context.Department
                 .AsNoTracking()
@@ -95,21 +81,14 @@ namespace Attendance.Controllers
                 pageSize = PageSize,
                 hasMore = paged.Count == PageSize,
                 totalCount = fullResult.Count,
-                cacheKey,
                 departments
             });
         }
 
         // GET api/emp-shifts/{empCode}/{shiftCode}/{fromDate}
         [HttpGet("{empCode}/{shiftCode}/{fromDate}")]
-        public async Task<IActionResult> GetById(decimal empCode, string shiftCode, DateTime fromDate, [FromQuery] string? key)
+        public async Task<IActionResult> GetById(decimal empCode, string shiftCode, DateTime fromDate)
         {
-            if (!string.IsNullOrEmpty(key) && memoryCache.TryGetValue(key, out List<Vw_EmpShiftWithAllowance> cached))
-            {
-                var hit = cached.FirstOrDefault(e => e.EmpCode == empCode && e.ShiftCode == shiftCode && e.FromDate == fromDate);
-                if (hit != null) return Ok(hit);
-            }
-
             var shift = await context.EmpShift
                 .FirstOrDefaultAsync(e => e.EmpCode == empCode && e.ShiftCode == shiftCode && e.FromDate == fromDate);
 
@@ -143,7 +122,7 @@ namespace Attendance.Controllers
             if (dto.FromDate >= dto.ToDate)
                 return BadRequest(new { message = "التاريخ من يجب ان يكون اقل من التاريخ الي." });
 
-            List<decimal> codes = new();
+            List<decimal> codes = [];
 
             if (dto.TargetType == "Single" && dto.EmpCode.HasValue)
             {
@@ -192,9 +171,7 @@ namespace Attendance.Controllers
 
         // PUT api/emp-shifts/{empCode}/{shiftCode}/{fromDate}
         [HttpPut("{empCode}/{shiftCode}/{fromDate}")]
-        public async Task<IActionResult> Edit(
-            decimal empCode, string shiftCode, DateTime fromDate,
-            [FromBody] Empshift updated)
+        public async Task<IActionResult> Edit(decimal empCode, string shiftCode, DateTime fromDate, [FromBody] Empshift updated)
         {
             var existing = await context.EmpShift
                 .FirstOrDefaultAsync(e => e.EmpCode == empCode && e.ShiftCode == shiftCode && e.FromDate == fromDate);

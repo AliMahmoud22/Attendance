@@ -10,7 +10,7 @@ namespace Attendance.Models
 
         [StringLength(80)]
         [Required]
-        public string? ShiftName { get; set; }
+        public string ShiftName { get; set; }    = null!;
         [Required]
         public TimeSpan StartTime { get; set; }
         [Required]

@@ -10,6 +10,8 @@
         public DateTime? CheckTime { get; set; }
         public string? CheckType { get; set; }
         public string? Sensor { get; set; }
+        public bool? Empfinger { get; set; }
+        public bool? OverTime { get; set; }
 
 
     }

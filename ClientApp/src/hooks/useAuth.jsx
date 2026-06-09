@@ -58,24 +58,7 @@ export function AuthProvider({ children }) {
       return;
     }
     let res = await apiFetch("/api/account/me");
-    // // 🔥 if expired → try refresh
-    // if (res.status === 401) {
-    //     const refreshed = await refreshAccessToken();
-    //     if (!refreshed) {
-    //         clearTokens();
-    //         setUser(null);
-    //         setLoading(false);
-    //         return;
-    //     }
 
-    //     token = getAccessToken();
-
-    //     res = await apiFetch("/api/account/me", {
-    //         headers: {
-    //             Authorization: `Bearer ${token}`
-    //         }
-    //     });
-    // }
     if (res.ok) {
       const data = await res.json();
       setUser(data);

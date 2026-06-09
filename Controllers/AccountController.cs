@@ -1,5 +1,6 @@
 ﻿using Attendance.Data;
 using Attendance.DTOs.Authentication;
+using Attendance.DTOs.User;
 using Attendance.Models;
 using Attendance.services;
 using Microsoft.AspNetCore.Authorization;
@@ -75,7 +76,7 @@ public class AccountController(
     public async Task<IActionResult> GetUsers()
     {
         var users = await context.Users
-            .Select(u => new { u.ID, u.UserName, u.Role, u.IsActive, u.LastLogin })
+            .Select(u => new { u.ID, u.UserName, u.Role, u.Status, u.LastLogin })
             .AsNoTracking()
             .ToListAsync();
 
@@ -116,7 +117,7 @@ public class AccountController(
 
         user.UserName = model.UserName;
         user.Role = model.Role;
-        user.IsActive = model.isActive;
+        user.Status = model.Status;
 
         if (!string.IsNullOrEmpty(model.NewPassword))
         {
@@ -130,19 +131,33 @@ public class AccountController(
     }
 
     [Authorize(Roles = "IT")]
+    [HttpPost("users/{id}")]
+    public async Task<IActionResult> ToggleUserStatus(int id)
+    {
+        var user = await context.Users.FindAsync(id);
+        if (user == null) return NotFound();
+
+        user.Status = !user.Status;
+        user.SecurityStamp = Guid.NewGuid().ToString();
+
+        await context.SaveChangesAsync();
+
+        return Ok(new { message = "User Status Changed." });
+    }
+    [Authorize(Roles = "IT")]
     [HttpDelete("users/{id}")]
     public async Task<IActionResult> DeleteUser(int id)
     {
         var user = await context.Users.FindAsync(id);
         if (user == null) return NotFound();
 
-        user.IsActive = false;
-        user.SecurityStamp = Guid.NewGuid().ToString();
+        context.Remove(user);
 
         await context.SaveChangesAsync();
 
         return Ok(new { message = "Deleted" });
     }
+
 
     [HttpPost("login")]
     public async Task<IActionResult> Login(LoginDTO dto)
@@ -194,7 +209,7 @@ public class AccountController(
                 Id = u.ID,
                 UserName = u.UserName,
                 Role = u.Role,
-                IsActive = u.IsActive,
+                IsActive = u.Status,
                 LastLogin = u.LastLogin
             })
             .FirstOrDefaultAsync();

@@ -1,15 +1,13 @@
 using Attendance.Data;
+using Attendance.Middleware;
 using Attendance.services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using QuestPDF.Infrastructure;
 using Rotativa.AspNetCore;
 using System.Security.Claims;
 using System.Text;
-using System.Text.Json;
-using System.Text.Json.Serialization;
-using Attendance.Middleware;
-using QuestPDF.Infrastructure;
 
 
 QuestPDF.Settings.License = LicenseType.Community;
@@ -25,8 +23,8 @@ builder.Configuration
 
 builder.Services.AddDbContext<DBContext>(options =>
 {
-    //var connectionString = builder.Configuration.GetConnectionString("LiveConnection");
-    var connectionString = builder.Configuration.GetConnectionString("TestConnection");
+    var connectionString = builder.Configuration.GetConnectionString("LiveConnection");
+    //var connectionString = builder.Configuration.GetConnectionString("TestConnection");
     options.UseSqlServer(connectionString);
 });
 builder.Services.AddMemoryCache();
@@ -42,25 +40,6 @@ builder.Services.AddCors(options =>
         });
 });
 
-//builder.Services.AddAuthentication("MyCookieAuth")
-//    .AddCookie("MyCookieAuth", options =>
-//    {
-//        options.LoginPath = "/account/login";        
-//        options.AccessDeniedPath = "/account/access-denied"; 
-//        options.ExpireTimeSpan = TimeSpan.FromHours(24);
-//        options.SlidingExpiration = true;
-
-//        options.Events.OnRedirectToLogin = ctx =>
-//        {
-//            if (ctx.Request.Path.StartsWithSegments("/api"))
-//            {
-//                ctx.Response.StatusCode = 401;
-//                return Task.CompletedTask;
-//            }
-//            ctx.Response.Redirect(ctx.RedirectUri);
-//            return Task.CompletedTask;
-//        };
-//    });
 
 builder.Services.AddAuthentication(options =>
 {
@@ -99,7 +78,7 @@ builder.Services.AddAuthentication(options =>
             }
 
             var user = await dbContext.Users.AsNoTracking()
-            .Select(u => new { u.ID, u.SecurityStamp, u.IsActive })
+            .Select(u => new { u.ID, u.SecurityStamp, IsActive=u.Status })
             .FirstOrDefaultAsync(u => u.ID == int.Parse(userIdClaim));
             if (user == null || user.SecurityStamp != stampClaim)
             {
@@ -132,9 +111,8 @@ builder.Services.AddAuthentication(options =>
     };
 });
 builder.Services.AddAuthorizationBuilder()
-    .AddPolicy("RequireUserRole", policy => policy.RequireRole("User", "IT", "Admin", "SuperAdmin"));
+    .AddPolicy("RequireUserRole", policy => policy.RequireRole("User", "IT", "Admin", "SuperAdmin","SuperUser"));
 
-builder.Services.AddScoped<IPdfGeneratorService, RotativaPdfGeneratorService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 
@@ -146,10 +124,10 @@ if (!app.Environment.IsDevelopment())
 {
     app.UseHsts();
 }
-//app.UseHttpsRedirection();
+app.UseHttpsRedirection();
 app.UseMiddleware<ExceptionMiddleware>();
 app.UseCors("AllowReact");
-app.UseStaticFiles();        
+app.UseStaticFiles();
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();

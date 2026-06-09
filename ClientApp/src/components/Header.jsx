@@ -14,7 +14,7 @@ export default function Header() {
   const isAuth = !!user;
   const location = useLocation();
   const navigate = useNavigate();
-  const noBackRoutes = ["/"];
+  const noBackRoutes = ["/", "/account/login"];
   const showBack = !noBackRoutes.includes(location.pathname);
   const toggleTheme = () => {
     const newTheme = theme == "light" ? "dark" : "light";
@@ -36,33 +36,13 @@ export default function Header() {
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.4, ease: "easeOut" }}
       className="
-            fixed top-0 left-0 w-full z-50 
+            fixed top-0 left-0 w-full z-60 
             backdrop-blur-md shadow-md
             bg-[#1C4D8D]/95 dark:bg-gray-900/95
             border-b border-white/10 dark:border-gray-700"
     >
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between py-3 gap-3">
-          {/* <div className="flex items-center gap-10">
-
-                            <button
-                                onClick={toggleTheme}
-                                className="rounded-full p-2 border border-gray-300 dark:border-gray-600 
-                                text-gray-600 bg-gray-100 dark:bg-[#0f172a]/90 dark:text-gray-300 cursor-pointer
-                                hover:bg-gray-300 dark:hover:bg-gray-700 transition"
-                                >
-                                {theme === "light" ? <Moon size={20}/> : <Sun size={20 }/>}
-                            </button>
-                        <Link to="/" className="flex items-center text-lg sm:text-2xl font-bold text-white">
-                       
-                            <img
-                                src={logoImage}
-                                className="h-8 sm:h-10 w-auto"
-                                alt="Logo"
-                            />
-                            <span className="ms-2 hidden sm:inline">الصفحة الرئيسية</span>
-                        </Link>
-                    </div> */}
           <div className="flex items-center gap-4 ">
             {/* 🔙 Back Button */}
             {showBack && (

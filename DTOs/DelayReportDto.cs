@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-namespace Attendance.Models
+namespace Attendance.DTOs
 {
     [Keyless]
     public class DelayReportDto

@@ -1,50 +1,7 @@
 import { useState, useEffect } from "react";
 import { apiFetch } from "../utils/api";
-import { s } from "framer-motion/client";
-
-/* ── Toast ── */
-function Toast({ message, type = "success" }) {
-  const colors = {
-    success: {
-      bg: "rgba(16,185,129,0.40)",
-      border: "#10b98140",
-      text: "#ffffff",
-    },
-    error: { bg: "rgba(239,68,68,0.40)", border: "#ef444440", text: "#ffffff" },
-  };
-  const c = colors[type];
-  return (
-    <div
-      className="fixed top-6 left-1/2 -translate-x-1/2 z-50 px-6 py-3 rounded-2xl text-sm font-semibold flex items-center gap-2"
-      style={{
-        background: c.bg,
-        border: `1px solid ${c.border}`,
-        color: c.text,
-        backdropFilter: "blur(10px)",
-        animation: "slideDown 0.3s cubic-bezier(.34,1.56,.64,1)",
-      }}
-    >
-      {type === "success" ? "✓" : "✕"} {message}
-    </div>
-  );
-}
-
-/* ── Modal ── */
-function Modal({ title, onClose, children }) {
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
-      <div className="w-full max-w-md rounded-2xl bg-[#0f172a] border border-[#334155]">
-        <div className="flex justify-between px-6 py-4 border-b border-[#1e293b]">
-          <h3 className="text-white font-bold">{title}</h3>
-          <button onClick={onClose} className="text-gray-400">
-            ✕
-          </button>
-        </div>
-        <div className="p-6">{children}</div>
-      </div>
-    </div>
-  );
-}
+import Toast from "../components/ui/Toast";
+import Modal from "../components/ui/Modal";
 
 const inputCls = `w-full rounded-xl px-4 py-2 bg-[#1e293b] border border-[#334155] text-white`;
 
@@ -288,6 +245,7 @@ export default function DepartmentsPage() {
     <div className="min-h-screen p-6 bg-gray-100 dark:bg-gray-900">
       {toast && <Toast message={toast.message} type={toast.type} />}
 
+      {/* Create Department */}
       {modal === "create" && (
         <Modal title="New Department" onClose={() => setModal(null)}>
           <CreateForm
@@ -300,7 +258,7 @@ export default function DepartmentsPage() {
           />
         </Modal>
       )}
-
+      {/* Edit Department */}
       {modal?.type === "edit" && (
         <Modal title="Edit" onClose={() => setModal(null)}>
           <EditForm
@@ -314,6 +272,7 @@ export default function DepartmentsPage() {
           />
         </Modal>
       )}
+      {/* Delete Department */}
       {modal?.type === "delete" && (
         <Modal title="Confirm Delete" onClose={() => setModal(null)}>
           <div className="text-center">
@@ -370,7 +329,7 @@ export default function DepartmentsPage() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search..."
-          className="flex-1 rounded-xl px-4 py-2 filter-input border bg-gray-50 dark:bg-gray-700 border-gray-300 dark:border-gray-600 outline-none"
+          className="flex-1 rounded-xl px-4 py-2  border bg-gray-50 dark:bg-gray-700 border-gray-300 dark:border-gray-600 outline-none"
         />
 
         <select

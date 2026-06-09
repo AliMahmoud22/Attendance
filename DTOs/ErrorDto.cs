@@ -1,4 +1,4 @@
-namespace Attendance.Models
+namespace Attendance.DTOs
 {
     public class ErrorDto
     {

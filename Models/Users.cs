@@ -14,7 +14,7 @@ namespace Attendance.Models
         [Required]
         public string Role { get; set; } = null!;
         [Required]
-        public bool IsActive { get; set; } = true;
+        public bool Status { get; set; } = true;
         public DateTime? LastLogin { get; set; }
         public ICollection<RefreshToken> RefreshTokens { get; set; } = [];
         public string? SecurityStamp { get; set; } = Guid.NewGuid().ToString();

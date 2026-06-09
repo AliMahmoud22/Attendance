@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Attendance.Models
+namespace Attendance.DTOs.User
 {
     public class CreateUserDto
     {
