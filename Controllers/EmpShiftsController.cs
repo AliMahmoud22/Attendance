@@ -112,7 +112,6 @@ namespace Attendance.Controllers
 
             return Ok(new { shifts, departments });
         }
-
         // POST api/emp-shifts
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateEmpShiftDto dto)
@@ -168,7 +167,6 @@ namespace Attendance.Controllers
 
             return Ok(new { message = "تم إضافة الشيفت بنجاح ✅" });
         }
-
         // PUT api/emp-shifts/{empCode}/{shiftCode}/{fromDate}
         [HttpPut("{empCode}/{shiftCode}/{fromDate}")]
         public async Task<IActionResult> Edit(decimal empCode, string shiftCode, DateTime fromDate, [FromBody] Empshift updated)

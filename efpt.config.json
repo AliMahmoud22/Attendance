@@ -1,9 +1,9 @@
 ﻿{
    "CodeGenerationMode": 6,
-   "ContextClassName": "AttendsContext",
+   "ContextClassName": "DBContext",
    "ContextNamespace": null,
    "FilterSchemas": false,
-   "IncludeConnectionString": false,
+   "IncludeConnectionString": true,
    "IrregularWords": null,
    "MinimumProductVersion": "2.6.1604",
    "ModelNamespace": null,
@@ -19,84 +19,20 @@
    "T4TemplatePath": null,
    "Tables": [
       {
-         "Name": "[dbo].[CHECKINOUT]",
+         "Name": "[dbo].[AuditLogs]",
          "ObjectType": 0
-      },
-      {
-         "Name": "[dbo].[Department]",
-         "ObjectType": 0
-      },
-      {
-         "Name": "[dbo].[EmpInfo]",
-         "ObjectType": 0
-      },
-      {
-         "Name": "[dbo].[HOLIDAYS]",
-         "ObjectType": 0
-      },
-      {
-         "Name": "[dbo].[MachineAlerts]",
-         "ObjectType": 0
-      },
-      {
-         "Name": "[dbo].[MachineLastSync]",
-         "ObjectType": 0
-      },
-      {
-         "Name": "[dbo].[Machines]",
-         "ObjectType": 0
-      },
-      {
-         "Name": "[dbo].[Pass]",
-         "ObjectType": 0
-      },
-      {
-         "Name": "[dbo].[SHIFT]",
-         "ObjectType": 0
-      },
-      {
-         "Name": "[dbo].[ShiftAllowance]",
-         "ObjectType": 0
-      },
-      {
-         "Name": "[dbo].[ShiftTime]",
-         "ObjectType": 0
-      },
-      {
-         "Name": "[dbo].[ShiftType]",
-         "ObjectType": 0
-      },
-      {
-         "Name": "[dbo].[USERINFO]",
-         "ObjectType": 0
-      },
-      {
-         "Name": "[dbo].[Users]",
-         "ObjectType": 0
-      },
-      {
-         "Name": "[dbo].[vw_CheckInOutViewModel]",
-         "ObjectType": 3
-      },
-      {
-         "Name": "[dbo].[vw_EmpShiftWithAllowance]",
-         "ObjectType": 3
-      },
-      {
-         "Name": "[dbo].[sp_CreateEmployee]",
-         "ObjectType": 1
       }
    ],
    "UiHint": null,
    "UncountableWords": null,
    "UseAsyncStoredProcedureCalls": true,
    "UseBoolPropertiesWithoutDefaultSql": false,
-   "UseDatabaseNames": false,
+   "UseDatabaseNames": true,
    "UseDatabaseNamesForRoutines": true,
    "UseDateOnlyTimeOnly": true,
    "UseDbContextSplitting": false,
    "UseDecimalDataAnnotationForSprocResult": true,
-   "UseFluentApiOnly": true,
+   "UseFluentApiOnly": false,
    "UseHandleBars": false,
    "UseHierarchyId": false,
    "UseInflector": true,

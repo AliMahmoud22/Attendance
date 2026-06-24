@@ -392,7 +392,7 @@ export default function CheckInOutsPage() {
         <div className="flex flex-col gap-1">
           <label className="text-sm font-medium">الشيفت</label>
           <select
-            value={"الكل"}
+            value={filters.shiftType}
             onChange={(e) =>
               setFilters((p) => ({ ...p, shiftType: e.target.value }))
             }

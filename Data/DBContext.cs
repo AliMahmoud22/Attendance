@@ -38,7 +38,9 @@ namespace Attendance.Data
                 .HasOne(eh => eh.Employee)
                 .WithMany(e => e.EmpHolidays)
                 .HasForeignKey(eh => eh.EmpCode);
-            
+
+            modelBuilder.Entity<AuditLog>()
+                .HasKey(A => A.Id);
         }
 
 
@@ -47,7 +49,7 @@ namespace Attendance.Data
         public DbSet<Department> Department { get; set; }
         public DbSet<Users> Users { get; set; }
         public DbSet<Machine> Machines { get; set; }
-        public DbSet<Empshift> EmpShift  { get; set; }
+        public DbSet<Empshift> EmpShift { get; set; }
         public DbSet<ShiftTime> ShiftTime { get; set; }
         public DbSet<userinfo> USERINFO { get; set; }
         public DbSet<Holidays> HOLIDAYS { get; set; }
@@ -58,6 +60,8 @@ namespace Attendance.Data
         public DbSet<MachineLastSync> MachineLastSync { get; set; }
         public DbSet<UserAlertActions> UserAlertActions { get; set; }
         public DbSet<RefreshToken> RefreshTokens { get; set; }
+        public DbSet<AuditLog> AuditLogs { get; set; }
+
 
         //View
         public DbSet<Vw_CheckInOutViewModel> vw_CheckInOutViewModel { get; set; }
@@ -67,9 +71,9 @@ namespace Attendance.Data
         public DbSet<AbsenceViewModel> AbsenceViewModel { get; set; }
         public DbSet<EarlyLeaveSummary> EarlyLeaveSummary { get; set; }
         public DbSet<DelayReportDto> DelayReportViewModel { get; set; }
-        public DbSet<CreateEmployeeSpResult> CreateEmployeeSpResult { get; set; } 
+        public DbSet<CreateEmployeeSpResult> CreateEmployeeSpResult { get; set; }
 
-        }
+    }
 
 
 }
