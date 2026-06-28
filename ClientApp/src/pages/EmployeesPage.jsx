@@ -229,7 +229,7 @@ export default function EmployeesPage() {
           e.preventDefault();
           loadEmployees();
         }}
-        className="flex flex-col sm:flex-row gap-3 mb-6 p-4 rounded-2xl border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700"
+        className="flex flex-col flex-wrap md:flex-row sm:flex-row gap-3 mb-6 p-4 rounded-2xl border bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700"
       >
         <input
           placeholder="Employee Code"
@@ -359,7 +359,7 @@ export default function EmployeesPage() {
                       `/check-in-outs?empCode=${e.employeeCode}&filterType=emp`,
                     )
                   }
-                  className="px-2 py-1 btn-action text-md rounded bg-green-300 text-black"
+                  className="px-2 py-1 btn-action text-md rounded-lg bg-green-600 text-black"
                 >
                   البصمات
                 </button>
@@ -370,7 +370,7 @@ export default function EmployeesPage() {
                       employee: e,
                     })
                   }
-                  className="px-2 py-1 btn-action text-md rounded bg-yellow-300 text-yellow-900"
+                  className="px-2 py-1 btn-action text-md rounded-lg bg-yellow-400 text-yellow-900"
                 >
                   تعديل
                 </button>
@@ -382,7 +382,7 @@ export default function EmployeesPage() {
                       employee: e,
                     })
                   }
-                  className="px-2 py-1 btn-action text-md rounded bg-red-300 text-red-700"
+                  className="px-2 py-1 btn-action text-md rounded-lg bg-red-700 text-white"
                 >
                   حذف
                 </button>

@@ -24,8 +24,16 @@ function PrivateRoute({ children, requiredRole }) {
     );
 
   if (!user) return <Navigate to="/account/login" replace />;
-  if (requiredRole && user.role !== requiredRole)
-    return <Navigate to="/account/access-denied" replace />;
+  if (requiredRole) {
+    const allowedRoles = Array.isArray(requiredRole)
+      ? requiredRole
+      : [requiredRole];
+    if (!allowedRoles.includes(user.role)) {
+      return <Navigate to="/account/access-denied" replace />;
+    }
+  }
+  // if (requiredRole && user.role !== requiredRole)
+  //   return <Navigate to="/account/access-denied" replace />;
 
   return children;
 }
@@ -74,7 +82,7 @@ export default function App() {
           <Route
             path="/machines"
             element={
-              <PrivateRoute>
+              <PrivateRoute requiredRole={["IT", "Admin", "SuperAdmin"]}>
                 <MachinesPage />
               </PrivateRoute>
             }
@@ -82,7 +90,7 @@ export default function App() {
           <Route
             path="/departments"
             element={
-              <PrivateRoute>
+              <PrivateRoute requiredRole={["IT", "Admin", "SuperAdmin"]}>
                 <DepartmentsPage />
               </PrivateRoute>
             }
@@ -90,7 +98,7 @@ export default function App() {
           <Route
             path="/machines/connectivity"
             element={
-              <PrivateRoute>
+              <PrivateRoute requiredRole={["IT", "Admin", "SuperAdmin"]}>
                 <ConnectivityPage />
               </PrivateRoute>
             }
@@ -106,7 +114,7 @@ export default function App() {
           <Route
             path="/employees"
             element={
-              <PrivateRoute>
+              <PrivateRoute requiredRole={["IT", "Admin", "SuperAdmin"]}>
                 <EmployeesPage />
               </PrivateRoute>
             }

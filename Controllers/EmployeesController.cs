@@ -10,14 +10,14 @@ namespace Attendance.Controllers
     [ApiController]
     [Route("api/employees")]
     [Authorize]
-    public class EmployeesController (
+    public class EmployeesController(
         DBContext context) : ControllerBase
     {
         private const int PageSize = 30;
 
         // GET api/employees?empCode=1&empName=x&departmentId=x&page=1
         [HttpGet]
-        public async Task<IActionResult> GetEmployees (
+        public async Task<IActionResult> GetEmployees(
             decimal? empCode,
             string? empName,
             decimal? empCodeFrom,
@@ -33,7 +33,7 @@ namespace Attendance.Controllers
                 query = query.Where(e => e.DepartmentId == departmentId);
 
             if (!string.IsNullOrWhiteSpace(empName))
-                query = query.Where(e => EF.Functions.Like(e.Name, $"{empName}%"));
+                query = query.Where(e => EF.Functions.Like(e.NameNormalized, $"{empName}%"));
 
             if (empCode != null)
                 query = query.Where(e => EF.Functions.Like(e.EmployeeCode.ToString(), $"{empCode}%"));
@@ -93,7 +93,7 @@ namespace Attendance.Controllers
 
         // GET api/employees/lookups  — departments + shifts for dropdowns
         [HttpGet("lookups")]
-        public async Task<IActionResult> GetLookups ()
+        public async Task<IActionResult> GetLookups()
         {
             var departments = await context.Department
                 .AsNoTracking()
@@ -111,7 +111,7 @@ namespace Attendance.Controllers
         // POST api/employees
         [HttpPost]
         [Authorize(Roles = "IT, SuperAdmin, Admin ")]
-        public async Task<IActionResult> Create ([FromBody] CreateEmployeeDto dto)
+        public async Task<IActionResult> Create([FromBody] CreateEmployeeDto dto)
         {
             try
             {
@@ -161,7 +161,7 @@ namespace Attendance.Controllers
         // PUT api/employees
         [HttpPut]
         [Authorize(Roles = "IT, SuperAdmin, Admin ")]
-        public async Task<IActionResult> Edit ([FromBody] EditEmployeeDto dto)
+        public async Task<IActionResult> Edit([FromBody] EditEmployeeDto dto)
         {
             try
             {
@@ -190,7 +190,7 @@ namespace Attendance.Controllers
         // DELETE api/employees/{code}  — soft delete
         [HttpDelete("{code}")]
         [Authorize(Roles = "IT, SuperAdmin, Admin ")]
-        public async Task<IActionResult> Delete (decimal code)
+        public async Task<IActionResult> Delete(decimal code)
         {
             var emp = await context.EmpInfo.FirstOrDefaultAsync(e => e.EmployeeCode == code);
             if (emp == null) return NotFound();

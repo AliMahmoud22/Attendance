@@ -201,7 +201,7 @@ function EditUserForm({ user, onSuccess, onClose }) {
           value={form.userName}
           onChange={handleChange}
           required
-          className="w-full border border-gray-300 rounded-xl px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
+          className="w-full text-gray-700 border border-gray-300 rounded-xl px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
         />
       </div>
       <div>
@@ -214,7 +214,7 @@ function EditUserForm({ user, onSuccess, onClose }) {
           value={form.newPassword}
           onChange={handleChange}
           placeholder="Leave blank to keep current"
-          className="w-full border border-gray-300 rounded-xl px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
+          className="w-full text-gray-700 border border-gray-300 rounded-xl px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
         />
       </div>
       <div>
@@ -225,7 +225,7 @@ function EditUserForm({ user, onSuccess, onClose }) {
           name="role"
           value={form.role}
           onChange={handleChange}
-          className="w-full border border-gray-300 rounded-xl px-4 py-2 bg-white focus:ring-2 focus:ring-blue-500 outline-none"
+          className="w-full text-gray-700 border border-gray-300 rounded-xl px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
         >
           {ROLES.map((r) => (
             <option key={r} value={r}>
@@ -242,7 +242,7 @@ function EditUserForm({ user, onSuccess, onClose }) {
           name="status"
           value={String(form.status)}
           onChange={handleChange}
-          className="w-full border border-gray-300 rounded-xl px-4 py-2 bg-white focus:ring-2 focus:ring-blue-500 outline-none"
+          className="w-full text-gray-700 border border-gray-300 rounded-xl px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
         >
           <option value="true">Active</option>
           <option value="false">Deactivated</option>

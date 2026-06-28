@@ -70,7 +70,7 @@ namespace Attendance.Controllers
                 }
                 else if (!string.IsNullOrWhiteSpace(Name))
                 {
-                    var user = await context.EmpInfo.AnyAsync(x => EF.Functions.Like(x.Name, $"{Name}%"));
+                    var user = await context.EmpInfo.AnyAsync(x => EF.Functions.Like(x.NameNormalized, $"{Name}%"));
                     if (!user)
                     {
                         return BadRequest(new { message = "الاسم غير موجود." });
@@ -112,7 +112,7 @@ namespace Attendance.Controllers
 
                 else if (filterType == "name" && !string.IsNullOrWhiteSpace(Name))
                 {
-                    query = query.Where(x => EF.Functions.Like(x.EmpName, $"{Name}%"));
+                    query = query.Where(x => EF.Functions.Like(x.NameNormalized, $"{Name}%"));
                 }
 
                 else if (filterType == "range" && empCodeFrom.HasValue && empCodeTo.HasValue)

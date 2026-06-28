@@ -12,6 +12,7 @@
         public string? Sensor { get; set; }
         public bool? Empfinger { get; set; }
         public bool? OverTime { get; set; }
+        public string? NameNormalized { get; set; }
 
 
     }

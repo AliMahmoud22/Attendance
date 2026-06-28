@@ -18,14 +18,16 @@ namespace Attendance.Models
 
 
         //[Required(ErrorMessage = "Department is required.")]
-        public string ?DepartmentId { get; set; } = null!;
+        public string? DepartmentId { get; set; } = null!;
 
-        
+
         [Column("IS_work")]
         public bool? IsDeleted { get; set; }
         public string? birth { get; set; }
-        public bool ? Empfinger { get; set; }
-        public bool ? OverTime { get; set; }
+        public bool? Empfinger { get; set; }
+        public bool? OverTime { get; set; }
+        public string? NameNormalized { get; set; } = null!;
+
 
         public Department Department { get; set; }
 
