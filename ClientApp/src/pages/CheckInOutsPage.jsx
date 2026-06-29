@@ -63,6 +63,9 @@ export default function CheckInOutsPage() {
     currentFilters = filters,
     currentFilterType = filterType,
   ) => {
+    setData([]);
+    setDays([]);
+    setCacheKey(null);
     const hasFilter =
       currentFilters.name ||
       currentFilters.empCode ||
@@ -85,6 +88,7 @@ export default function CheckInOutsPage() {
       params.append("fromDate", currentFilters.fromDate);
       params.append("toDate", currentFilters.toDate);
       params.append("shiftType", currentFilters.shiftType);
+      params.append("departmentId", currentFilters.departmentId.trim());
 
       if (currentFilterType === "name" && currentFilters.name) {
         params.append("filterType", "name");
@@ -96,9 +100,11 @@ export default function CheckInOutsPage() {
         params.append("filterType", "range");
         params.append("empCodeFrom", currentFilters.empCodeFrom);
         params.append("empCodeTo", currentFilters.empCodeTo);
-      } else if (currentFilterType === "department") {
-        params.append("departmentId", currentFilters.departmentId.trim());
-      } else if (
+      }
+      // else if (currentFilterType === "department") {
+      // params.append("departmentId", currentFilters.departmentId.trim());
+      // }
+      else if (
         currentFilterType === "departments" &&
         currentFilters.departmentIds.length
       ) {
@@ -121,6 +127,11 @@ export default function CheckInOutsPage() {
       }
       const json = await res.json();
 
+      if (!json.data.length) {
+        showToast("لا توجد بصمات");
+        return;
+      }
+
       setData(json.data);
       setCacheKey(json.cacheKey);
       const start = new Date(currentFilters.fromDate);
@@ -129,7 +140,11 @@ export default function CheckInOutsPage() {
       const tempDays = [];
 
       for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
-        tempDays.push(new Date(d).toISOString().slice(0, 10));
+        tempDays.push(
+          `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(
+            d.getDate(),
+          ).padStart(2, "0")}`,
+        );
       }
 
       setDays(tempDays);
@@ -204,13 +219,13 @@ export default function CheckInOutsPage() {
             .join(","),
         );
       }
-      if (filterType === "department" && filters.departmentId != null) {
-        params.append(
-          "departmentName",
-          lookups.departments.find((d) => d.id === filters.departmentId)
-            ?.name || "",
-        );
-      }
+      // if (filterType === "department" && filters.departmentId != null) {
+      params.append(
+        "departmentName",
+        lookups.departments.find((d) => d.id === filters.departmentId)?.name ||
+          "",
+      );
+      // }
 
       // 3. فتح الرابط الآمن الآن في تبويب جديد بنجاح
       window.open(`/api/check-in-outs/print?${params.toString()}`, "_blank");
@@ -242,7 +257,7 @@ export default function CheckInOutsPage() {
             <option value="emp">كود موظف</option>
             <option value="name">اسم الموظف</option>
             <option value="range"> مجموعة اكواد موظفين</option>
-            <option value="department">ادارة</option>
+            {/* <option value="department">ادارة</option> */}
             <option value="departments">مجموعة ادارات</option>
           </select>
         </div>
@@ -283,6 +298,7 @@ export default function CheckInOutsPage() {
             className="rounded-xl px-3 py-2 border dark:bg-gray-700"
           />
         </div>
+
         {/* 👤 Single Employee */}
         {filterType === "emp" && (
           <div className="flex flex-col gap-1">
@@ -311,7 +327,6 @@ export default function CheckInOutsPage() {
             />
           </div>
         )}
-
         {/* 👥 Range */}
         {filterType === "range" && (
           <>
@@ -343,7 +358,7 @@ export default function CheckInOutsPage() {
         )}
 
         {/* 🏢 Single Department */}
-        {filterType === "department" && (
+        {filterType !== "departments" && (
           <div className="flex flex-col gap-1">
             <label className="text-sm font-medium">ادارة</label>
 
@@ -352,9 +367,13 @@ export default function CheckInOutsPage() {
                 value: d.id,
                 label: d.name,
               }))}
-              value={lookups.departments
-                .map((d) => ({ value: d.id, label: d.name }))
-                .find((o) => o.value === filters.departmentId)}
+              value={
+                lookups.departments
+                  .map((d) => ({ value: d.id, label: d.name }))
+                  .find(
+                    (o) => String(o.value) === String(filters.departmentId),
+                  ) ?? null
+              }
               onChange={(selected) =>
                 setFilters((p) => ({
                   ...p,
@@ -381,7 +400,7 @@ export default function CheckInOutsPage() {
               onChange={(selected) =>
                 setFilters((p) => ({
                   ...p,
-                  departmentIds: selected.map((s) => s.value), // 👈 الترتيب محفوظ
+                  departmentIds: selected?.map((s) => s.value) ?? [],
                 }))
               }
             />
@@ -460,7 +479,7 @@ export default function CheckInOutsPage() {
 
                 <th
                   className="
-                            sticky top-0 right-5 z-40
+                            sticky top-0 right-17 z-40
                             bg-[#0C2B4E]
                             p-4 border
                             whitespace-nowrap
@@ -479,7 +498,7 @@ export default function CheckInOutsPage() {
                     <th
                       key={d}
                       className={`
-            sticky top-0 z-40
+            sticky top-0 z-39
             p-4 border whitespace-nowrap
             ${isWeekend ? "bg-gray-600 text-white" : "bg-[#0C2B4E] text-white"}
           `}
@@ -509,7 +528,7 @@ export default function CheckInOutsPage() {
 
                   <td
                     className="
-                          sticky right-5 z-30
+                          sticky right-17 z-30
                           bg-white dark:bg-gray-800
                           font-semibold border
                           whitespace-nowrap px-3
@@ -525,11 +544,26 @@ export default function CheckInOutsPage() {
 
                     return (
                       <td
-                        className={`border border-gray-300 font-bold hover:bg-green-300 dark:hover:bg-green-900  ${isWeekend ? "bg-gray-600 text-white" : ""}  dark:border-white px-2 py-4`}
-                        dangerouslySetInnerHTML={{
-                          __html: emp.days[d]?.join("<br/>") || "-",
-                        }}
-                      />
+                        key={d}
+                        className={`border border-gray-300 font-bold hover:bg-green-300 dark:hover:bg-green-900 ${
+                          isWeekend ? "bg-gray-600 text-white" : ""
+                        } dark:border-white px-2 py-4`}
+                      >
+                        {emp.days[d]?.length
+                          ? emp.days[d].map((check, index) => (
+                              <div
+                                key={index}
+                                className={
+                                  check.highlight
+                                    ? "text-[#F98406] font-bold"
+                                    : ""
+                                }
+                              >
+                                {check.checkTime}
+                              </div>
+                            ))
+                          : "-"}
+                      </td>
                     );
                   })}
                 </tr>

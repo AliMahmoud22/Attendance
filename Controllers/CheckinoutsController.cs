@@ -119,7 +119,7 @@ namespace Attendance.Controllers
                     query = query.Where(x => x.EmpCode >= empCodeFrom && x.EmpCode <= empCodeTo);
 
 
-                else if (!string.IsNullOrEmpty(departmentId))
+                if (!string.IsNullOrEmpty(departmentId))
                 {
                     query = query.Where(x => x.DepartmentID == departmentId);
                 }
@@ -167,7 +167,7 @@ namespace Attendance.Controllers
                             .ToDictionary(
                                 d => d.Key,
                                 d => d.OrderBy(x => x.CheckTime)
-                                      .Select(x => x.CheckTime!.Value.ToString("HH:mm")).Distinct()
+                                      .Select(x => new { CheckTime = x.CheckTime!.Value.ToString("HH:mm"), x.Sensor, highlight = x.Sensor == "9" ? true : false }).Distinct()
                                       .ToList()
                             )
                     });

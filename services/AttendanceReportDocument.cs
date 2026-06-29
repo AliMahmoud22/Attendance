@@ -206,7 +206,7 @@ namespace Attendance.services
                         .ToDictionary(
                             g => g.Key,
                             g => g.OrderBy(x => x.CheckTime)
-                                  .Select(x => x.CheckTime!.Value.ToString("HH:mm"))
+                                  .Select(x => new { Time = x.CheckTime!.Value.ToString("HH:mm"), Highlight = x.Sensor == "9" ? true : false })
                                   .Distinct()
                                   .ToList());
 
@@ -235,7 +235,19 @@ namespace Attendance.services
                                 cell.PaddingBottom(10).Column(col =>
                                 {
                                     foreach (var t in times)
-                                        col.Item().AlignCenter().Text(t).FontSize(11).Bold(); ;
+                                    {
+                                        col.Item()
+                                           .AlignCenter()
+                                           .Text(text =>
+                                           {
+                                               text.Span(t.Time)
+                                                   .FontSize(11)
+                                                   .Bold()
+                                                   .FontColor(t.Highlight
+                                                       ? Colors.Orange.Darken4
+                                                       : Colors.Black);
+                                           });
+                                    }
                                 });
                             }
                             else
